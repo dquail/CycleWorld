@@ -13,6 +13,9 @@ from CycleState import *
 
 NUMBER_OF_STATES = 4
 SPECIAL_STATE_INDEX = 0
+RIGHT_REWARD = 0
+LEFT_REWARD_NEGATIVE = -10
+LEFT_REWARD_POSITIVE = 10
 class CycleWorld:
 
 
@@ -101,11 +104,11 @@ class CycleWorld:
 
         reward = 0
         if action == 'R':
-            reward = 0
+            reward = RIGHT_REWARD
         if action == 'L':
-            reward = -10
+            reward = LEFT_REWARD_NEGATIVE
             if currentState.isSpecial:
-                reward = 10
+                reward = LEFT_REWARD_POSITIVE
 
         #Get observation
         if self.currentIndex == len(self.states) - 1:
