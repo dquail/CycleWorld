@@ -15,14 +15,29 @@ from BehaviorPolicy import *
 import numpy
 
 alpha = 0.1
-numberOfActiveFeatures = 5 #1 color bit + 1 bias bit + ~2 random bits + 1 GVF bit
+#numberOfActiveFeatures = 5 #1 color bit + 1 bias bit + ~2 random bits + 1 GVF bit
+numberOfActiveFeatures = 2
+
+def oneStepGammaFunction(colorObservation):
+    return 0
 
 def makeSeeColorCumulantFunction(color):
     def cumulantFunuction(colorObservation):
-        if colorObservation.X[1]:
-            return 1
-        else:
-            return 0
+        val = 0
+        if color == 'r':
+            if colorObservation.X[0] == 1:
+                val = 1
+        elif color == 'g':
+            if colorObservation.X[1] == 1:
+                val = 1
+        elif color == 'b':
+            if colorObservation.X[2] == 1:
+                val = 1
+        elif color == 'w':
+            if colorObservation.X[3] == 1:
+                val = 1
+        return val
+
     return cumulantFunuction
 
 def makeSeeColorGammaFunction(color):
@@ -74,51 +89,45 @@ class LearningForeground:
 
         self.previousState = False
 
-
-    def createAllColorGVFs(self):
+    def createSameWhiteGVFs(self):
         gvfs = []
-        colors = ['red', 'orange', 'yellow', 'green', 'blue']
-        for i in range(0, 5):
-            color = colors[i]
+        gvf1 =  GVF(self.featureRepresentationLength,
+                    alpha / numberOfActiveFeatures, isOffPolicy=False, name="1 step white")
+        gvf1.gamma = oneStepGammaFunction
+        gvf1.cumulant = makeSeeColorCumulantFunction('w')
+        gvfs.append(gvf1)
 
-            #Create the GVF that calculates number of steps to see a certain color if moving straight
-            gvfName = "StepsToWallGVF. Color: " + color + ", action: " + "F"
-            gvfStraight = GVF(self.featureRepresentationLength,
-                              alpha / numberOfActiveFeatures, isOffPolicy=True, name=gvfName)
-            gvfStraight.gamma = makeSeeColorGammaFunction(color)
-            gvfStraight.cumulant = timestepCumulant #TODO - Future cumulants need to be outputs from other GVFS
-            gvfStraight.policy = goForwardPolicy
+        gvf2 = GVF(self.featureRepresentationLength,
+                   alpha / numberOfActiveFeatures, isOffPolicy=False, name="1 step white")
+        gvf2.gamma = oneStepGammaFunction
+        gvf2.cumulant = makeSeeColorCumulantFunction('w')
+        gvfs.append(gvf2)
 
-            gvfs.append(gvfStraight)
+        gvf3 = GVF(self.featureRepresentationLength,
+                   alpha / numberOfActiveFeatures, isOffPolicy=False, name="1 step white")
+        gvf3.gamma = oneStepGammaFunction
+        gvf3.cumulant = makeSeeColorCumulantFunction('w')
+        gvfs.append(gvf3)
 
-            #Create the GVF that calculates the number of steps to a certain color if turning left then going straight
-            gvfName = "StepsToWallGVF. Color: " + color + ", action: " + "LF"
-            gvfTurn = GVF(self.featureRepresentationLength,
-                          alpha / numberOfActiveFeatures, isOffPolicy=True, name=gvfName)
-            gvfTurn.gamma = zeroGamma
-
-            def turnCumulant(state):
-                return 1 + gvfStraight.prediction(state)
-
-            gvfTurn.cumulant = turnCumulant
-            gvfTurn.policy = turnLeftPolicy
-
-            gvfs.append(gvfTurn)
-
+        gvf4 = GVF(self.featureRepresentationLength,
+                   alpha / numberOfActiveFeatures, isOffPolicy=False, name="1 step white")
+        gvf4.gamma = oneStepGammaFunction
+        gvf4.cumulant = makeSeeColorCumulantFunction('w')
+        gvfs.append(gvf4)
 
         return gvfs
 
-    def createDescribableGVF(self):
+    def createGreenGVFs(self):
         gvfs = []
         gvf1 =  GVF(self.featureRepresentationLength,
                     alpha / numberOfActiveFeatures, isOffPolicy=False, name="1 step green")
-        gvf1.gamma = makeSeeColorGammaFunction('g')
+        gvf1.gamma = oneStepGammaFunction
         gvf1.cumulant = makeSeeColorCumulantFunction('g')
         gvfs.append(gvf1)
 
         gvf2 = GVF(self.featureRepresentationLength,
                    alpha / numberOfActiveFeatures, isOffPolicy=False, name="2 step green")
-        gvf2.gamma = makeSeeColorGammaFunction('g')
+        gvf2.gamma = oneStepGammaFunction
         def cumulant2(state):
             return gvf1.prediction(state)
         gvf2.cumulant = cumulant2
@@ -126,7 +135,7 @@ class LearningForeground:
 
         gvf3 = GVF(self.featureRepresentationLength,
                    alpha / numberOfActiveFeatures, isOffPolicy=False, name="3 step green")
-        gvf3.gamma = makeSeeColorGammaFunction('g')
+        gvf3.gamma = oneStepGammaFunction
         def cumulant3(state):
             return gvf2.prediction(state)
         gvf3.cumulant = cumulant3
@@ -134,7 +143,7 @@ class LearningForeground:
 
         gvf4 = GVF(self.featureRepresentationLength,
                    alpha / numberOfActiveFeatures, isOffPolicy=False, name="4 step green")
-        gvf3.gamma = makeSeeColorGammaFunction('g')
+        gvf4.gamma = oneStepGammaFunction
         def cumulant4(state):
             return gvf3.prediction(state)
         gvf4.cumulant = cumulant4
@@ -142,8 +151,43 @@ class LearningForeground:
 
         return gvfs
 
+    def createWhiteGVFs(self):
+        gvfs = []
+        gvf1 =  GVF(self.featureRepresentationLength,
+                    alpha / numberOfActiveFeatures, isOffPolicy=False, name="1 step white")
+        gvf1.gamma = oneStepGammaFunction
+        gvf1.cumulant = makeSeeColorCumulantFunction('w')
+        gvfs.append(gvf1)
+
+        gvf2 = GVF(self.featureRepresentationLength,
+                   alpha / numberOfActiveFeatures, isOffPolicy=False, name="2 step white")
+        gvf2.gamma = oneStepGammaFunction
+        def cumulant2(state):
+            return gvf1.prediction(state)
+        gvf2.cumulant = cumulant2
+        gvfs.append(gvf2)
+
+        gvf3 = GVF(self.featureRepresentationLength,
+                   alpha / numberOfActiveFeatures, isOffPolicy=False, name="3 step white")
+        gvf3.gamma = oneStepGammaFunction
+        def cumulant3(state):
+            return gvf2.prediction(state)
+        gvf3.cumulant = cumulant3
+        gvfs.append(gvf3)
+
+        gvf4 = GVF(self.featureRepresentationLength,
+                   alpha / numberOfActiveFeatures, isOffPolicy=False, name="4 step white")
+        gvf4.gamma = oneStepGammaFunction
+        def cumulant4(state):
+            return gvf3.prediction(state)
+        gvf4.cumulant = cumulant4
+        gvfs.append(gvf4)
+
+        return gvfs
+
+
     def createGVFs(self):
-        return self.createDescribableGVF()
+        return self.createSameWhiteGVFs()
 
     """
     Create a feature representation using the existing GVFs, history and immediate observation
@@ -180,7 +224,7 @@ class LearningForeground:
         i = 0
         while (True):
 
-            if i %50000 == 0:
+            if i %5000 == 0:
                 print("========== Timestep: " + str(i))
             i = i + 1
             action = self.behaviorPolicy.policy(self.previousState)
@@ -205,12 +249,19 @@ class LearningForeground:
 
         if self.previousState:
             #Learning
+            #TODO - REmove after testing
+            demon = self.demons[0]
+            predBefore = demon.prediction(self.previousState)
+            demon.learn(oldState, action, newState)
+            print("Demon " + demon.name + " prediction before: " + str(predBefore))
+            print("Demon" + demon.name + " prediction after: " + str(demon.prediction(self.previousState)))
+            """
             for demon in self.demons:
                 predBefore = demon.prediction(self.previousState)
                 demon.learn(oldState, action, newState)
                 print("Demon " + demon.name + " prediction before: " + str(predBefore))
                 print("Demon" + demon.name + " prediction after: " + str(demon.prediction(self.previousState)))
-
+            """
 
 
 

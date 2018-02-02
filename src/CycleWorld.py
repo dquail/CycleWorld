@@ -43,7 +43,6 @@ class CycleWorld:
             color = state.color
 
             if state.isSpecial:
-                print("I'm special!!!!")
                 color = color.capitalize()
 
             str = color
@@ -56,6 +55,36 @@ class CycleWorld:
 
         print(printString)
 
+    def createObservation(self, newState):
+        #return self.createObservationWithBiasAndRandom(oldState, newState)
+        return  self.createObservationWithoutBiasAndRandom(newState)
+
+    def createObservationWithoutBiasAndRandom(self, newState):
+        #Currently doesn't use any info from the state transitioned from
+
+        vector = numpy.zeros(5)
+
+        #Set color bits
+        color = newState.color
+        if color == "r":
+            vector[0] = 1
+        elif color == "g":
+            vector[1] = 1
+        elif color == "b":
+            vector[2] = 1
+        elif color == "w":
+            vector[3] = 1
+
+        #set bias bit to 0
+        vector[4] = 0
+
+
+        #randomVector = numpy.random.randint(2, size = 4)
+        randomVector = numpy.zeros(4)
+
+        observation = numpy.append(vector, randomVector)
+        return observation
+
     """
     Creates a bit vector of length 9 with the following bit values:
     - bit 0: 1 if color is r
@@ -65,7 +94,7 @@ class CycleWorld:
     - bit 4: 1 (bias bit)
     - bit 5-8: randomly 0 or 1
     """
-    def createObservation(self, oldState, newState):
+    def createObservationWithBiasAndRandom(self, oldState, newState):
         #Currently doesn't use any info from the state transitioned from
 
         vector = numpy.zeros(5)
@@ -120,7 +149,7 @@ class CycleWorld:
             nextState = self.states[self.currentIndex + 1]
             self.currentIndex = self.currentIndex + 1
 
-        observation = self.createObservation(currentState, nextState)
+        observation = self.createObservation(nextState)
         self.printWorld()
         return (reward, observation)
 
