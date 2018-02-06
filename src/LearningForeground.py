@@ -10,6 +10,7 @@ LearningForeground contains a collection of GVF's. It accepts new state represen
 
 from GVF import *
 from CycleWorld import *
+from TriggerWorld import *
 from BehaviorPolicy import *
 
 import numpy
@@ -39,6 +40,25 @@ def makeSeeColorCumulantFunction(color):
         return val
 
     return cumulantFunuction
+
+def makeEchoColorGammaFunction(color):
+    def gammaFunction(colorObservation):
+        val = 0.9
+        if color == 'r':
+            if colorObservation.X[0] == 1:
+                val = 0
+        elif color == 'g':
+            if colorObservation.X[1] == 1:
+                val = 0
+        elif color == 'b':
+            if colorObservation.X[2] == 1:
+                val = 0
+        elif color == 'w':
+            if colorObservation.X[3] == 1:
+                val = 0
+        return val
+
+    return gammaFunction
 
 def makeSeeColorGammaFunction(color):
     def gammaFunction(colorObservation):
@@ -71,11 +91,13 @@ def turnLeftPolicy(state):
 def turnRightPolicy(state):
     return "R"
 
+def moveForwardPolicy(state):
+    return 'M'
 
 class LearningForeground:
 
     def __init__(self):
-        self.cycleWorld = CycleWorld()
+        self.triggerWorld = TriggerWorld()
 
 
         self.behaviorPolicy = BehaviorPolicy()
@@ -83,11 +105,22 @@ class LearningForeground:
         self.lastAction = 0
         self.currentAction = 0 #Bit of a hack to allow state representations based on GVFs to peak at last action and current action
         # self.featureRepresentationLength = 6*6*4 + 6 #6 by 6 grid, 4 orientations, + 6 color bits
-        self.featureRepresentationLength = 4 + 1 + 4 + 4# ie.4 color bits + bias bit + 4 random bits + 4 GVF bits
+        #self.featureRepresentationLength = 4 + 1 + 4 + 4# ie.4 color bits + bias bit + 4 random bits + 4 GVF bits
+        self.featureRepresentationLength = 4 + 1 + 4 + 10  # ie.4 color bits + bias bit + 4 random bits + 10 GVF bits
         #Initialize the demons appropriately depending on what test you are runnning by commenting / uncommenting
         self.demons = self.createGVFs()
 
         self.previousState = False
+
+    def createEchoGVF(self):
+        gvfs = []
+        gvf =  GVF(self.featureRepresentationLength,
+                    alpha / numberOfActiveFeatures, isOffPolicy=True, name="Echo to green")
+        gvf.gamma = makeEchoColorGammaFunction('g')
+        gvf.policy = moveForwardPolicy
+        gvf.cumulant = makeSeeColorCumulantFunction('g')
+        gvfs.append(gvf)
+        return gvfs
 
     def createSameWhiteGVFs(self):
         gvfs = []
@@ -187,14 +220,30 @@ class LearningForeground:
 
 
     def createGVFs(self):
-        return self.createSameWhiteGVFs()
+        #return self.createSameWhiteGVFs()
+        return self.createEchoGVF()
 
     """
     Create a feature representation using the existing GVFs, history and immediate observation
     """
     def createFeatureRepresentation(self, observation):
-        return self.createPartiallyObservableRepresentation(observation)
+        #return self.createPartiallyObservableRepresentation(observation)
+        return self.createEchoRepresentation(observation)
 
+    def createEchoRepresentation(self, observation):
+        if observation == None:
+            return None
+        else:
+            echoVector = numpy.zeros(10)
+            if self.previousState:
+                echoGVF = self.demons[0]
+                echoValue = echoGVF.prediction(self.previousState)
+                echoIndex = int(echoValue * 10)
+                echoVector = numpy.zeros(10)
+                echoVector[echoIndex] = 1
+
+            rep = numpy.append(observation, echoVector)
+            return rep
 
 
     """
@@ -220,7 +269,7 @@ class LearningForeground:
     def start(self):
 
         print("Initial world:")
-        self.cycleWorld.printWorld()
+        self.triggerWorld.printWorld()
         i = 0
         while (True):
 
@@ -229,10 +278,10 @@ class LearningForeground:
             i = i + 1
             action = self.behaviorPolicy.policy(self.previousState)
             self.currentAction = action
-            print("Cycle world before action: ")
-            self.cycleWorld.printWorld()
+            print("Trigger world before action: ")
+            self.triggerWorld.printWorld()
             print("Action being taken: " + str(action))
-            (reward, observation) = self.cycleWorld.takeAction(action)
+            (reward, observation) = self.triggerWorld.takeAction(action)
             featureRep = self.createFeatureRepresentation(observation)
             stateRepresentation = StateRepresentation()
             stateRepresentation.X = featureRep

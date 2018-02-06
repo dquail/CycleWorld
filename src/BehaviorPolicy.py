@@ -12,12 +12,17 @@ class BehaviorPolicy:
     def policy(self, state):
         self.i = self.i + 1
         #return self.randomPolicy(state)
-        return self.moveLeftPolicy(state)
+        #return self.moveLeftPolicy(state)
+        return self.moveForwardPolicy(state)
 
     def randomPolicy(self, state):
-        actions = ["L","L", "L", "L", "L", "R", "R", "R", "R", "R"]
+        actions = ["M","M", "M", "M", "M", "T", "T", "T", "T", "T"]
         action = actions[randint(0,9)]
         return action
+
+    def moveForwardPolicy(self, state):
+        self.lastAction = 'M'
+        return 'M'
 
     def moveLeftPolicy(self, state):
         self.lastAction = "L"

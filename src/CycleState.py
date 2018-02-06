@@ -12,4 +12,4 @@ class CycleState:
     def __init__(self):
         self.isCreated = True
         self.color = "w"
-        self.isSpecial = False
+        self.isTerminal = False
