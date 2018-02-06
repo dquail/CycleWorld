@@ -66,8 +66,6 @@ class GVF:
 
     def gtdLearn(self, lastState, action, newState):
 
-        print("")
-        print("!!!!! LEARN  !!!!!!!")
         #print("GVF name: " + str(self.name))
         #print("For (" + str(lastState.colorLookingAt) +  ", " + str(lastState.didBump) +  ") to (" + str(newState.colorLookingAt) + ", " + str(newState.didBump) + ")")
         pred = self.prediction(lastState)

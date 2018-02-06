@@ -154,7 +154,7 @@ class TriggerWorld:
                 nextState = currentState
 
         observation = self.createObservation(nextState)
-        self.printWorld()
+
         return (reward, observation)
 
 

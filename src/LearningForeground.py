@@ -43,7 +43,7 @@ def makeSeeColorCumulantFunction(color):
 
 def makeEchoColorGammaFunction(color):
     def gammaFunction(colorObservation):
-        val = 0.9
+        val = 0.8
         if color == 'r':
             if colorObservation.X[0] == 1:
                 val = 0
@@ -106,7 +106,7 @@ class LearningForeground:
         self.currentAction = 0 #Bit of a hack to allow state representations based on GVFs to peak at last action and current action
         # self.featureRepresentationLength = 6*6*4 + 6 #6 by 6 grid, 4 orientations, + 6 color bits
         #self.featureRepresentationLength = 4 + 1 + 4 + 4# ie.4 color bits + bias bit + 4 random bits + 4 GVF bits
-        self.featureRepresentationLength = 4 + 1 + 4 + 10  # ie.4 color bits + bias bit + 4 random bits + 10 GVF bits
+        self.featureRepresentationLength = 4 + 1 + 4 + 11  # ie.4 color bits + bias bit + 4 random bits + 11 GVF bits
         #Initialize the demons appropriately depending on what test you are runnning by commenting / uncommenting
         self.demons = self.createGVFs()
 
@@ -234,12 +234,13 @@ class LearningForeground:
         if observation == None:
             return None
         else:
-            echoVector = numpy.zeros(10)
+            echoVector = numpy.zeros(11)
             if self.previousState:
+            #if False:
                 echoGVF = self.demons[0]
                 echoValue = echoGVF.prediction(self.previousState)
-                echoIndex = int(echoValue * 10)
-                echoVector = numpy.zeros(10)
+                echoIndex = int(round(echoValue * 10))
+                echoVector = numpy.zeros(11)
                 echoVector[echoIndex] = 1
 
             rep = numpy.append(observation, echoVector)
@@ -278,9 +279,12 @@ class LearningForeground:
             i = i + 1
             action = self.behaviorPolicy.policy(self.previousState)
             self.currentAction = action
-            print("Trigger world before action: ")
-            self.triggerWorld.printWorld()
-            print("Action being taken: " + str(action))
+            print("")
+            print("------")
+            print("State learning about:")
+            if self.previousState:
+                print("X: " + str(self.previousState.X))
+            print self.triggerWorld.printWorld()
             (reward, observation) = self.triggerWorld.takeAction(action)
             featureRep = self.createFeatureRepresentation(observation)
             stateRepresentation = StateRepresentation()
@@ -302,8 +306,9 @@ class LearningForeground:
             demon = self.demons[0]
             predBefore = demon.prediction(self.previousState)
             demon.learn(oldState, action, newState)
-            print("Demon " + demon.name + " prediction before: " + str(predBefore))
-            print("Demon" + demon.name + " prediction after: " + str(demon.prediction(self.previousState)))
+            print("Demon " + demon.name + " previous state prediction before learning: " + str(predBefore))
+
+            print("Demon" + demon.name + " previous state prediction after learning: " + str(demon.prediction(self.previousState)))
             """
             for demon in self.demons:
                 predBefore = demon.prediction(self.previousState)
