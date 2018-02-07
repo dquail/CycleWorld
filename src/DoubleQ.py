@@ -5,10 +5,10 @@ import numpy
 
 
 class DoubleQ:
-    def __init__(self, alpha, eps, numberOfFeatures):
+    def __init__(self, alpha, eps, numberOfFeatures, numberOfActions):
         self.numberOfFeatures = numberOfFeatures
-        actionOffset = numberOfFeatures
-        self.numberOfWeights = numberOfFeatures * 2
+        self.actionOffset = numberOfFeatures
+        self.numberOfWeights = numberOfFeatures * numberOfActions
         self.alpha = alpha
         self.eps = eps
 
@@ -22,7 +22,7 @@ class DoubleQ:
     def qHat(self, state, action, theta):
         value = 0
         for indicie in state:
-            value += theta[indicie + action * actionOffset]
+            value += theta[indicie + action * self.actionOffset]
         return value
 
     def bestAction(self, state, theta):
@@ -48,7 +48,7 @@ class DoubleQ:
 
             learningError = self.alpha * (reward + newStateValue - self.qHat(state, action, self.theta1))
             for indicie in state:
-                self.theta1[indicie + action * actionOffset] += learningError
+                self.theta1[indicie + action * self.actionOffset] += learningError
         else:
             # print("Using theta2")
             nextStateValue = 0
@@ -59,4 +59,4 @@ class DoubleQ:
 
             learningError = self.alpha * (reward + newStateValue - self.qHat(state, action, self.theta2))
             for indicie in state:
-                self.theta2[indicie + action * actionOffset] += learningError
+                self.theta2[indicie + action * self.actionOffset] += learningError

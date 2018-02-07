@@ -12,6 +12,7 @@ from GVF import *
 from CycleWorld import *
 from TriggerWorld import *
 from BehaviorPolicy import *
+from DoubleQ import *
 
 import numpy
 
@@ -99,7 +100,6 @@ class LearningForeground:
     def __init__(self):
         self.triggerWorld = TriggerWorld()
 
-
         self.behaviorPolicy = BehaviorPolicy()
 
         self.lastAction = 0
@@ -109,6 +109,8 @@ class LearningForeground:
         self.featureRepresentationLength = (4 + 1 + 4 + 11) * 2  # ie.4 color bits + bias bit + 4 random bits + 11 GVF bits X 2 previous actions
         #Initialize the demons appropriately depending on what test you are runnning by commenting / uncommenting
         self.demons = self.createGVFs()
+
+        self.doubleQ = DoubleQ(alpha=0.1, eps = 0.1, numberOfFeatures = self.featureRepresentationLength, numberOfActions = 2)
 
         self.previousState = False
 
@@ -287,7 +289,13 @@ class LearningForeground:
             if i %200000 == 0:
                 print("========== Timestep: " + str(i))
             i = i + 1
-            action = self.behaviorPolicy.policy(self.previousState)
+            #action = self.behaviorPolicy.policy(self.previousState)
+            action = self.doubleQ.policy(self.previousState)
+            if action == 0:
+                action = "M"
+            elif action == 1:
+                action = "T"
+
             self.currentAction = action
             print("")
             print("------")
@@ -303,7 +311,11 @@ class LearningForeground:
             featureRep = self.createFeatureRepresentation(observation, action)
             stateRepresentation = StateRepresentation()
             stateRepresentation.X = featureRep
-
+            if (action == "M"):
+                a = 0
+            if (action =="T"):
+                a = 1
+            self.doubleQ.learn(self.previousState, a, stateRepresentation, reward)
             self.updateDemons(self.previousState, action, stateRepresentation)
             if not self.previousState:
                 self.previousState = StateRepresentation()
