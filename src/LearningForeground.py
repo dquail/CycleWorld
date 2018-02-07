@@ -290,7 +290,10 @@ class LearningForeground:
                 print("========== Timestep: " + str(i))
             i = i + 1
             #action = self.behaviorPolicy.policy(self.previousState)
-            action = self.doubleQ.policy(self.previousState)
+            if self.previousState:
+                action = self.doubleQ.policy(self.previousState.X)
+            else:
+                action = 0
             if action == 0:
                 action = "M"
             elif action == 1:
@@ -315,7 +318,8 @@ class LearningForeground:
                 a = 0
             if (action =="T"):
                 a = 1
-            self.doubleQ.learn(self.previousState, a, stateRepresentation, reward)
+            if self.previousState:
+                self.doubleQ.learn(self.previousState.X, a, stateRepresentation.X, reward)
             self.updateDemons(self.previousState, action, stateRepresentation)
             if not self.previousState:
                 self.previousState = StateRepresentation()
