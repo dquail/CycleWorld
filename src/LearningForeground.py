@@ -106,7 +106,7 @@ class LearningForeground:
         self.currentAction = 0 #Bit of a hack to allow state representations based on GVFs to peak at last action and current action
         # self.featureRepresentationLength = 6*6*4 + 6 #6 by 6 grid, 4 orientations, + 6 color bits
         #self.featureRepresentationLength = 4 + 1 + 4 + 4# ie.4 color bits + bias bit + 4 random bits + 4 GVF bits
-        self.featureRepresentationLength = 4 + 1 + 4 + 11  # ie.4 color bits + bias bit + 4 random bits + 11 GVF bits
+        self.featureRepresentationLength = (4 + 1 + 4 + 11) * 2  # ie.4 color bits + bias bit + 4 random bits + 11 GVF bits X 2 previous actions
         #Initialize the demons appropriately depending on what test you are runnning by commenting / uncommenting
         self.demons = self.createGVFs()
 
@@ -226,11 +226,11 @@ class LearningForeground:
     """
     Create a feature representation using the existing GVFs, history and immediate observation
     """
-    def createFeatureRepresentation(self, observation):
+    def createFeatureRepresentation(self, observation, action):
         #return self.createPartiallyObservableRepresentation(observation)
-        return self.createEchoRepresentation(observation)
+        return self.createEchoRepresentation(observation, action)
 
-    def createEchoRepresentation(self, observation):
+    def createEchoRepresentation(self, observation, action):
         if observation == None:
             return None
         else:
@@ -243,8 +243,18 @@ class LearningForeground:
                 echoVector = numpy.zeros(11)
                 echoVector[echoIndex] = 1
 
+
             rep = numpy.append(observation, echoVector)
-            return rep
+            emptyRep = numpy.zeros(self.featureRepresentationLength / 2)
+
+            repWithLastAction = []
+
+            if action == "M":
+                repWithLastAction = numpy.append(rep, emptyRep)
+            else:
+                repWithLastAction = numpy.append(emptyRep, rep)
+
+            return repWithLastAction
 
 
     """
@@ -274,7 +284,7 @@ class LearningForeground:
         i = 0
         while (True):
 
-            if i %5000 == 0:
+            if i %200000 == 0:
                 print("========== Timestep: " + str(i))
             i = i + 1
             action = self.behaviorPolicy.policy(self.previousState)
@@ -284,9 +294,13 @@ class LearningForeground:
             print("State learning about:")
             if self.previousState:
                 print("X: " + str(self.previousState.X))
-            print self.triggerWorld.printWorld()
+            self.triggerWorld.printWorld()
+
+            if action == "T":
+                print("--- Trigger ---")
+
             (reward, observation) = self.triggerWorld.takeAction(action)
-            featureRep = self.createFeatureRepresentation(observation)
+            featureRep = self.createFeatureRepresentation(observation, action)
             stateRepresentation = StateRepresentation()
             stateRepresentation.X = featureRep
 

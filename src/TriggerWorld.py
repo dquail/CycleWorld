@@ -14,7 +14,7 @@ import numpy
 from TriggerState import *
 
 NUMBER_OF_STATES = 4
-TERMINAL_STATE_INDEX = 3
+TERMINAL_STATE_INDEX = 30 # temporary hack so that there is no terminal state
 
 class TriggerWorld:
 

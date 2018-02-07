@@ -90,9 +90,10 @@ class GVF:
 
         #print("tdError: " + str(tdError))
 
+        updateH = self.alphaH  * (tdError * self.eligibilityTrace - (numpy.inner(self.hWeights, lastState.X)) * lastState.X)
+        self.hWeights = self.hWeights + updateH
 
-        self.hWeights = self.hWeights + self.alphaH  * (tdError * self.eligibilityTrace - (numpy.inner(self.hWeights, lastState.X)) * lastState.X)
-
+        """
         #update Rupee
         self.hHatWeights = self.hHatWeights + self.alphaRUPEE * (tdError * self.eligibilityTrace - (numpy.inner(self.hHatWeights, lastState.X)) * lastState.X)
         #print("tao before: " + str(self.tao))
@@ -116,17 +117,19 @@ class GVF:
         #print("tdvariance before: " + str(self.tdVariance))
         self.tdVariance = ((self.i - 1) * self.tdVariance + (tdError - oldAverageTD) * (tdError - self.averageTD)) / self.i
         #print("td variance after: " + str(self.tdVariance))
+        """
         self.i = self.i + 1
 
-        self.weights = self.weights + self.alpha * (tdError * self.eligibilityTrace - gammaNext * (1-lam)  * (numpy.inner(self.eligibilityTrace, self.hWeights) * newState.X))
+        upWeights = self.alpha * (tdError * self.eligibilityTrace - gammaNext * (1-lam)  * (numpy.inner(self.eligibilityTrace, self.hWeights) * newState.X))
+        self.weights = self.weights + upWeights
 
         pred = self.prediction(lastState)
         #print("Prediction for " + str(lastState.encoder) + ", " + str(lastState.speed)  + " after learning: " + str(pred))
 
-        rupee = self.rupee()
+        #rupee = self.rupee()
         #print("Rupee: " + str(rupee))
 
-        ude = self.ude()
+        #ude = self.ude()
         #print("UDE: " + str(ude))
 
         self.gammaLast = gammaNext
