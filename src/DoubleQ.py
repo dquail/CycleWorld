@@ -43,10 +43,10 @@ class DoubleQ:
         if (random() > 0.5):
             # print("Using theta1")
             nextStateValue = 0
-
-            # Non terminal
-            theta1BestNextAction = self.bestAction(nextState, self.theta1)
-            newStateValue = self.qHat(nextState, theta1BestNextAction, self.theta2)
+            if not nextState == None:
+                # Non terminal
+                theta1BestNextAction = self.bestAction(nextState, self.theta1)
+                newStateValue = self.qHat(nextState, theta1BestNextAction, self.theta2)
 
             learningError = self.alpha * (reward + newStateValue - self.qHat(state, action, self.theta1))
             for indicie in state:
@@ -54,7 +54,7 @@ class DoubleQ:
         else:
             # print("Using theta2")
             nextStateValue = 0
-            if (nextState.any()):
+            if not nextState == None:
                 # Non terminal
                 theta2BestNextAction = self.bestAction(nextState, self.theta2)
                 newStateValue = self.qHat(nextState, theta2BestNextAction, self.theta1)

@@ -35,6 +35,22 @@ class GVF:
         self.averageTD = 0
         self.i = 1
 
+
+    def reset(self):
+        self.lastState = 0
+        self.lastObservation = 0
+        self.weights = numpy.zeros(self.numberOfFeatures)
+        self.hWeights = numpy.zeros(self.numberOfFeatures)
+        self.hHatWeights = numpy.zeros(self.numberOfFeatures)
+        self.eligibilityTrace = numpy.zeros(self.numberOfFeatures)
+        self.gammaLast = 1
+
+        self.movingtdEligErrorAverage = 0 #average of TD*elig*hHat
+        self.lastAction = 0
+
+        self.tdVariance = 0
+        self.averageTD = 0
+        self.i = 1
     """
     gamma, cumulant, and policy functions can/should be overiden by the specific instantiation of the GVF based on the intended usage.
     """

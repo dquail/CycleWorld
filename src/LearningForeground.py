@@ -279,53 +279,72 @@ class LearningForeground:
         rep = numpy.append(observation, gvfPredictionVector)
         return rep
 
-    def start(self):
+    def resetEnvironment(self):
+        for demon in self.demons:
+            demon.reset()
+            self.triggerWorld.reset()
+
+    def start(self, numberOfEpisodes = 100, numberOfRuns = 1):
 
         print("Initial world:")
         self.triggerWorld.printWorld()
-        i = 0
-        while (True):
+        episodeLengthArray = numpy.zeros(numberOfEpisodes)
+        for run in range(numberOfRuns):
+            print("+++++++++ Run number " + str(run) + "++++++++++++")
+            self.doubleQ.resetQ()
+            self.resetEnvironment()
+            for episode in range(numberOfEpisodes):
+                self.triggerWorld.reset()
+                isTerminal = False
+                step = 0
+                while not isTerminal:
+                    step = step + 1
+                    if step %200000 == 0:
+                        print("========== Timestep: " + str(i))
+                    i = i + 1
+                    #action = self.behaviorPolicy.policy(self.previousState)
+                    if self.previousState:
+                        action = self.doubleQ.policy(self.previousState.X)
+                    else:
+                        action = 0
+                    if action == 0:
+                        action = "M"
+                    elif action == 1:
+                        action = "T"
 
-            if i %200000 == 0:
-                print("========== Timestep: " + str(i))
-            i = i + 1
-            #action = self.behaviorPolicy.policy(self.previousState)
-            if self.previousState:
-                action = self.doubleQ.policy(self.previousState.X)
-            else:
-                action = 0
-            if action == 0:
-                action = "M"
-            elif action == 1:
-                action = "T"
+                    self.currentAction = action
+                    print("")
+                    print("------")
+                    print("State learning about:")
+                    if self.previousState:
+                        print("X: " + str(self.previousState.X))
+                    self.triggerWorld.printWorld()
 
-            self.currentAction = action
-            print("")
-            print("------")
-            print("State learning about:")
-            if self.previousState:
-                print("X: " + str(self.previousState.X))
-            self.triggerWorld.printWorld()
+                    if action == "T":
+                        print("--- Trigger ---")
 
-            if action == "T":
-                print("--- Trigger ---")
+                    (reward, observation) = self.triggerWorld.takeAction(action)
+                    if observation == None:
+                        isTerminal = True
+                    else:
+                    featureRep = self.createFeatureRepresentation(observation, action)
+                    stateRepresentation = StateRepresentation()
+                    stateRepresentation.X = featureRep
+                    if (action == "M"):
+                        a = 0
+                    if (action =="T"):
+                        a = 1
+                    if self.previousState:
+                        self.doubleQ.learn(self.previousState.X, a, stateRepresentation.X, reward)
+                    self.updateDemons(self.previousState, action, stateRepresentation)
+                    if not self.previousState:
+                        self.previousState = StateRepresentation()
+                    self.lastAction = action
 
-            (reward, observation) = self.triggerWorld.takeAction(action)
-            featureRep = self.createFeatureRepresentation(observation, action)
-            stateRepresentation = StateRepresentation()
-            stateRepresentation.X = featureRep
-            if (action == "M"):
-                a = 0
-            if (action =="T"):
-                a = 1
-            if self.previousState:
-                self.doubleQ.learn(self.previousState.X, a, stateRepresentation.X, reward)
-            self.updateDemons(self.previousState, action, stateRepresentation)
-            if not self.previousState:
-                self.previousState = StateRepresentation()
-            self.lastAction = action
+                    self.previousState = stateRepresentation
 
-            self.previousState = stateRepresentation
+                    if isTerminal:
+                        episodeLengthArray[episode] = episodeLengthArray[episode] + (1 / (run + 1)) * step
 
 
     def updateDemons(self, oldState, action, newState):
@@ -351,6 +370,6 @@ class LearningForeground:
 
 def start():
     foreground = LearningForeground()
-    foreground.start()
+    foreground.start(numberOfEpisodes =  1000, numberOfRuns = 1)
 
 start()

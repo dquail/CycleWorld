@@ -34,6 +34,9 @@ class TriggerWorld:
 
         self.states[3].color = 'g'
 
+    def reset(self):
+        self.currentIndex = 0
+
     def printWorld(self):
 
         printString = ""
@@ -150,6 +153,7 @@ class TriggerWorld:
         elif (action == 'T'):
             if (self.currentIndex == TERMINAL_STATE_INDEX):
                 nextState = None
+                self.reset()
             else:
                 nextState = currentState
 
