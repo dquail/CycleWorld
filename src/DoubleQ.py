@@ -2,7 +2,11 @@ from pylab import *
 import numpy
 
 
-
+"""
+BUG TODO - 
+"for indicie" loops seems to assume that the state vector is a list of indicies that are "on"
+That's not currently the format of the states coming into the function. So need to update this. 
+"""
 
 class DoubleQ:
     def __init__(self, alpha, eps, numberOfFeatures, numberOfActions):

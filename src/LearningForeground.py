@@ -26,38 +26,45 @@ def oneStepGammaFunction(colorObservation):
 def makeSeeColorCumulantFunction(color):
     def cumulantFunuction(colorObservation):
         val = 0
-        if color == 'r':
-            if colorObservation.X[0] == 1:
-                val = 1
-        elif color == 'g':
-            if colorObservation.X[1] == 1:
-                val = 1
-        elif color == 'b':
-            if colorObservation.X[2] == 1:
-                val = 1
-        elif color == 'w':
-            if colorObservation.X[3] == 1:
-                val = 1
-        return val
+        if colorObservation.X == None:
+            #Terminal state
+            return 0
+        else:
+            if color == 'r':
+                if colorObservation.X[0] == 1:
+                    val = 1
+            elif color == 'g':
+                if colorObservation.X[1] == 1:
+                    val = 1
+            elif color == 'b':
+                if colorObservation.X[2] == 1:
+                    val = 1
+            elif color == 'w':
+                if colorObservation.X[3] == 1:
+                    val = 1
+            return val
 
     return cumulantFunuction
 
 def makeEchoColorGammaFunction(color):
     def gammaFunction(colorObservation):
         val = 0.8
-        if color == 'r':
-            if colorObservation.X[0] == 1:
-                val = 0
-        elif color == 'g':
-            if colorObservation.X[1] == 1:
-                val = 0
-        elif color == 'b':
-            if colorObservation.X[2] == 1:
-                val = 0
-        elif color == 'w':
-            if colorObservation.X[3] == 1:
-                val = 0
-        return val
+        if colorObservation.X == None:
+            return 0.8
+        else:
+            if color == 'r':
+                if colorObservation.X[0] == 1:
+                    val = 0
+            elif color == 'g':
+                if colorObservation.X[1] == 1:
+                    val = 0
+            elif color == 'b':
+                if colorObservation.X[2] == 1:
+                    val = 0
+            elif color == 'w':
+                if colorObservation.X[3] == 1:
+                    val = 0
+            return val
 
     return gammaFunction
 
@@ -280,6 +287,8 @@ class LearningForeground:
         return rep
 
     def resetEnvironment(self):
+        self.lastAction = 0
+        self.currentAction = 0
         for demon in self.demons:
             demon.reset()
             self.triggerWorld.reset()
@@ -300,8 +309,8 @@ class LearningForeground:
                 while not isTerminal:
                     step = step + 1
                     if step %200000 == 0:
-                        print("========== Timestep: " + str(i))
-                    i = i + 1
+                        print("========== Timestep: " + str(step))
+
                     #action = self.behaviorPolicy.policy(self.previousState)
                     if self.previousState:
                         action = self.doubleQ.policy(self.previousState.X)
@@ -327,6 +336,8 @@ class LearningForeground:
                     if observation == None:
                         isTerminal = True
                     else:
+                        isTerminal = False
+
                     featureRep = self.createFeatureRepresentation(observation, action)
                     stateRepresentation = StateRepresentation()
                     stateRepresentation.X = featureRep
@@ -336,7 +347,13 @@ class LearningForeground:
                         a = 1
                     if self.previousState:
                         self.doubleQ.learn(self.previousState.X, a, stateRepresentation.X, reward)
-                    self.updateDemons(self.previousState, action, stateRepresentation)
+                    if not featureRep == None:
+                        """
+                        Kind of a temporary hack. We could normally learn from transitions to terminal states.
+                        But in our case, terminal states only occer from trigger action. So nothing to learn from.
+                        And our GTD algorithm breaks with terminal states
+                        """
+                        self.updateDemons(self.previousState, action, stateRepresentation)
                     if not self.previousState:
                         self.previousState = StateRepresentation()
                     self.lastAction = action

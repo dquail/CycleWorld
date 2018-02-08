@@ -101,7 +101,10 @@ class GVF:
         rho = self.rho(action, lastState)
         #print("rho: " + str(rho))
         self.eligibilityTrace = rho * (self.gammaLast * lam * self.eligibilityTrace + lastState.X)
-        tdError = zNext + gammaNext * numpy.inner(newState.X, self.weights) - numpy.inner(lastState.X, self.weights)
+        newStateValue = 0.0
+        if not newState.X  == None:
+            newStateValue = numpy.inner(newState.X, self.weights)
+        tdError = zNext + gammaNext * newStateValue - numpy.inner(lastState.X, self.weights)
 
 
         #print("tdError: " + str(tdError))
