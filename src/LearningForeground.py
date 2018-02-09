@@ -302,9 +302,14 @@ class LearningForeground:
             print("+++++++++ Run number " + str(run) + "++++++++++++")
             self.doubleQ.resetQ()
             self.resetEnvironment()
+
             for episode in range(numberOfEpisodes):
+                print("---- Episode ---- " + str(episode))
                 self.triggerWorld.reset()
                 isTerminal = False
+                self.lastAction = 0
+                self.currentAction = 0
+                self.previousState = False
                 step = 0
                 while not isTerminal:
                     step = step + 1
@@ -361,6 +366,9 @@ class LearningForeground:
                     self.previousState = stateRepresentation
 
                     if isTerminal:
+                        print("")
+                        print("-- Episode finished in " + str(step) + " steps.")
+                        print("")
                         episodeLengthArray[episode] = episodeLengthArray[episode] + (1 / (run + 1)) * step
 
 
