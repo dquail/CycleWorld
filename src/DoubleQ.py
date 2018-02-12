@@ -25,8 +25,14 @@ class DoubleQ:
 
     def qHat(self, state, action, theta):
         value = 0
-        for indicie in state:
+        """
+        releventTheta = theta[action * self.actionOffset : action * self.actionOffset + self.numberOfFeatures]
+        value = np.inner(state, releventTheta)
+        """
+        indexes =  [i for i, x in enumerate(state) if x == 1.0]
+        for indicie in indexes:
             value += theta[indicie + action * self.actionOffset]
+
         return value
 
     def bestAction(self, state, theta):
@@ -53,8 +59,12 @@ class DoubleQ:
                 newStateValue = self.qHat(nextState, theta1BestNextAction, self.theta2)
 
             learningError = self.alpha * (reward + newStateValue - self.qHat(state, action, self.theta1))
-            for indicie in state:
+            indexes = [i for i, x in enumerate(state) if x == 1.0]
+            for indicie in indexes:
                 self.theta1[indicie + action * self.actionOffset] += learningError
+            """
+            #self.theta1[action * self.actionOffset: action * self.actionOffset + self.numberOfFeatures] += learningError
+            """
         else:
             # print("Using theta2")
             nextStateValue = 0
@@ -64,5 +74,8 @@ class DoubleQ:
                 newStateValue = self.qHat(nextState, theta2BestNextAction, self.theta1)
 
             learningError = self.alpha * (reward + newStateValue - self.qHat(state, action, self.theta2))
-            for indicie in state:
+            indexes = [i for i, x in enumerate(state) if x == 1.0]
+            for indicie in indexes:
                 self.theta2[indicie + action * self.actionOffset] += learningError
+
+            #self.theta2[action * self.actionOffset: action * self.actionOffset + self.numberOfFeatures] += learningError
