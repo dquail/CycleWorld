@@ -299,7 +299,7 @@ class LearningForeground:
         self.triggerWorld.printWorld()
         episodeLengthArray = numpy.zeros(numberOfEpisodes)
         for run in range(numberOfRuns):
-            print("+++++++++ Run number " + str(run) + "++++++++++++")
+            print("+++++++++ Run number " + str(run + 1) + "++++++++++++")
             self.doubleQ.resetQ()
             self.resetEnvironment()
 
@@ -369,8 +369,12 @@ class LearningForeground:
                         print("")
                         print("-- Episode finished in " + str(step) + " steps.")
                         print("")
-                        episodeLengthArray[episode] = episodeLengthArray[episode] + (1 / (run + 1)) * step
-
+                        print("-- Old episode length: " + str(episodeLengthArray[episode]))
+                        print("- steps this time: " + str(step))
+                        episodeLengthArray[episode] = episodeLengthArray[episode] + (1.0 / (run + 1.0)) * (step - episodeLengthArray[episode])
+                        print("-- Adjusted episode length: " + str(episodeLengthArray[episode]))
+        print("")
+        print("------ finished with all runs ------ ")
 
     def updateDemons(self, oldState, action, newState):
 
@@ -395,6 +399,6 @@ class LearningForeground:
 
 def start():
     foreground = LearningForeground()
-    foreground.start(numberOfEpisodes =  1000, numberOfRuns = 1)
+    foreground.start(numberOfEpisodes =  1000, numberOfRuns = 20)
 
 start()
