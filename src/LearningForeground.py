@@ -375,6 +375,20 @@ class LearningForeground:
                         print("-- Adjusted episode length: " + str(episodeLengthArray[episode]))
         print("")
         print("------ finished with all runs ------ ")
+        self.plotAverageEpisodeLengths(episodeLengthArray, numberOfRuns)
+
+    def plotAverageEpisodeLengths(self, plotLengthsArray, numberOfRuns):
+        fig = plt.figure(1)
+        fig.suptitle('Average Episode Length', fontsize=14, fontweight='bold')
+        ax = fig.add_subplot(211)
+        titleLabel = "Average over " + str(numberOfRuns) + " runs"
+        ax.set_title(titleLabel)
+        ax.set_xlabel('Episode')
+        ax.set_ylabel('Average episode length')
+
+        ax.plot(plotLengthsArray)
+
+        plt.show()
 
     def updateDemons(self, oldState, action, newState):
 
@@ -399,6 +413,6 @@ class LearningForeground:
 
 def start():
     foreground = LearningForeground()
-    foreground.start(numberOfEpisodes =  1000, numberOfRuns = 20)
+    foreground.start(numberOfEpisodes =  1000, numberOfRuns = 50)
 
 start()
