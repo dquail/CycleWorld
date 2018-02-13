@@ -28,7 +28,7 @@
       <file leaf-file-name="TriggerWorld.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/TriggerWorld.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="142">
+            <state relative-caret-position="1408">
               <caret line="154" column="0" lean-forward="false" selection-start-line="154" selection-start-column="0" selection-end-line="154" selection-end-column="0" />
               <folding>
                 <element signature="e#387#399#0" expanded="true" />
@@ -40,8 +40,8 @@
       <file leaf-file-name="BehaviorPolicy.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/BehaviorPolicy.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="195">
-              <caret line="13" column="21" lean-forward="false" selection-start-line="13" selection-start-column="21" selection-end-line="13" selection-end-column="21" />
+            <state relative-caret-position="315">
+              <caret line="21" column="0" lean-forward="false" selection-start-line="21" selection-start-column="0" selection-end-line="22" selection-end-column="38" />
               <folding />
             </state>
           </provider>
@@ -50,8 +50,8 @@
       <file leaf-file-name="LearningForeground.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/LearningForeground.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="218">
-              <caret line="415" column="64" lean-forward="false" selection-start-line="415" selection-start-column="64" selection-end-line="415" selection-end-column="64" />
+            <state relative-caret-position="157">
+              <caret line="477" column="13" lean-forward="false" selection-start-line="477" selection-start-column="13" selection-end-line="477" selection-end-column="13" />
               <folding>
                 <element signature="e#203#220#0" expanded="true" />
               </folding>
@@ -84,8 +84,8 @@
       <file leaf-file-name="GVF.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/GVF.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="498">
-              <caret line="141" column="0" lean-forward="false" selection-start-line="141" selection-start-column="0" selection-end-line="141" selection-end-column="0" />
+            <state relative-caret-position="776">
+              <caret line="92" column="0" lean-forward="false" selection-start-line="92" selection-start-column="0" selection-end-line="92" selection-end-column="0" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
@@ -117,23 +117,12 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>SPECIAL_ST</find>
-      <find>createO</find>
-      <find>alpha</find>
-      <find>numberOfActive</find>
-      <find>I'm</find>
-      <find>createGreen</find>
-      <find>makeSeeColorGammaFunction</find>
-      <find>createObser</find>
-      <find>triggerState</find>
-      <find>cycleWorld</find>
       <find>encoder</find>
       <find>representation</find>
       <find>printWo</find>
       <find>updateDe</find>
       <find>print(&quot;LEAR</find>
       <find>LEARN</find>
-      <find>Demon</find>
       <find>feature</find>
       <find>10</find>
       <find>create</find>
@@ -141,12 +130,23 @@
       <find>None</find>
       <find>Tr</find>
       <find>createFeat</find>
-      <find>Trigger</find>
       <find>updateDemo</find>
-      <find>printW</find>
       <find>&quot;!!</find>
-      <find>resetEn</find>
       <find>actionOffset</find>
+      <find>resetEn</find>
+      <find>makeEchoColorGammaFunction</find>
+      <find>makeEchoColor</find>
+      <find>makeSeeColorCumulantFunction</find>
+      <find>makeSeeColorCumulantFunction(</find>
+      <find>Trigger</find>
+      <find>printW</find>
+      <find>makeEcho</find>
+      <find>self.featureRe</find>
+      <find>createEchoGVF</find>
+      <find>Length</find>
+      <find>cumulant</find>
+      <find>print</find>
+      <find>Demon</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -300,23 +300,23 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/LearningForeground.py</url>
-          <line>417</line>
+          <line>492</line>
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/LearningForeground.py</url>
-          <line>376</line>
-          <option name="timeStamp" value="48" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/LearningForeground.py</url>
-          <line>380</line>
+          <line>455</line>
           <option name="timeStamp" value="50" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/LearningForeground.py</url>
+          <line>162</line>
+          <option name="timeStamp" value="52" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="51" />
+      <option name="time" value="53" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -334,7 +334,7 @@
         <state relative-caret-position="179">
           <caret line="278" column="0" lean-forward="false" selection-start-line="278" selection-start-column="0" selection-end-line="278" selection-end-column="0" />
           <folding>
-            <element signature="e#2767#2780#0" expanded="true" />
+            <element signature="e#2767#2780#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -399,34 +399,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/BehaviorPolicy.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="21" lean-forward="false" selection-start-line="13" selection-start-column="21" selection-end-line="13" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/TriggerWorld.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="142">
-          <caret line="154" column="0" lean-forward="false" selection-start-line="154" selection-start-column="0" selection-end-line="154" selection-end-column="0" />
-          <folding>
-            <element signature="e#387#399#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/GVF.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="498">
-          <caret line="141" column="0" lean-forward="false" selection-start-line="141" selection-start-column="0" selection-end-line="141" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/DoubleQ.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="117">
@@ -437,10 +409,38 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/BehaviorPolicy.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="21" column="0" lean-forward="false" selection-start-line="21" selection-start-column="0" selection-end-line="22" selection-end-column="38" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/TriggerWorld.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1408">
+          <caret line="154" column="0" lean-forward="false" selection-start-line="154" selection-start-column="0" selection-end-line="154" selection-end-column="0" />
+          <folding>
+            <element signature="e#387#399#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/GVF.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="776">
+          <caret line="92" column="0" lean-forward="false" selection-start-line="92" selection-start-column="0" selection-end-line="92" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/LearningForeground.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="218">
-          <caret line="415" column="64" lean-forward="false" selection-start-line="415" selection-start-column="64" selection-end-line="415" selection-end-column="64" />
+        <state relative-caret-position="157">
+          <caret line="477" column="13" lean-forward="false" selection-start-line="477" selection-start-column="13" selection-end-line="477" selection-end-column="13" />
           <folding>
             <element signature="e#203#220#0" expanded="true" />
           </folding>

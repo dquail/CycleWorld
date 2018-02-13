@@ -13,15 +13,28 @@ from CycleWorld import *
 from TriggerWorld import *
 from BehaviorPolicy import *
 from DoubleQ import *
-
+from random import randint
 import numpy
 
 alpha = 0.1
 #numberOfActiveFeatures = 5 #1 color bit + 1 bias bit + ~2 random bits + 1 GVF bit
-numberOfActiveFeatures = 2
+numberOfActiveFeatures = 3
 
 def oneStepGammaFunction(colorObservation):
     return 0
+
+def makeSeeBitCumulantFunction(bitIndex):
+    def cumulantFunuction(colorObservation):
+        val = 0
+        if colorObservation.X == None:
+            #Terminal state
+            return 0
+        else:
+            if colorObservation.X[bitIndex] == 1:
+                val = 1
+            return val
+    return cumulantFunuction
+
 
 def makeSeeColorCumulantFunction(color):
     def cumulantFunuction(colorObservation):
@@ -45,6 +58,18 @@ def makeSeeColorCumulantFunction(color):
             return val
 
     return cumulantFunuction
+
+def makeEchoBitGammaFunction(bitIndex):
+    def gammaFunction(colorObservation):
+        val = 0.8
+        if colorObservation.X == None:
+            return 0.8
+        else:
+            if colorObservation.X[bitIndex] == 1:
+                val = 0
+            return val
+
+    return gammaFunction
 
 def makeEchoColorGammaFunction(color):
     def gammaFunction(colorObservation):
@@ -113,7 +138,8 @@ class LearningForeground:
         self.currentAction = 0 #Bit of a hack to allow state representations based on GVFs to peak at last action and current action
         # self.featureRepresentationLength = 6*6*4 + 6 #6 by 6 grid, 4 orientations, + 6 color bits
         #self.featureRepresentationLength = 4 + 1 + 4 + 4# ie.4 color bits + bias bit + 4 random bits + 4 GVF bits
-        self.featureRepresentationLength = (4 + 1 + 4 + 11) * 2  # ie.4 color bits + bias bit + 4 random bits + 11 GVF bits X 2 previous actions
+        #self.featureRepresentationLength = (4 + 1 + 4 + 11) * 2  # ie.4 color bits + bias bit + 4 random bits + 11 GVF bits X 2 previous actions
+        self.featureRepresentationLength = (4 + 1 + 4 + 11 * 2) * 2  # ie.4 color bits + bias bit + 4 random bits + 11X2 GVF bits X 2 previous actions
         #Initialize the demons appropriately depending on what test you are runnning by commenting / uncommenting
         self.demons = self.createGVFs()
 
@@ -129,6 +155,21 @@ class LearningForeground:
         gvf.policy = moveForwardPolicy
         gvf.cumulant = makeSeeColorCumulantFunction('g')
         gvfs.append(gvf)
+        return gvfs
+
+    def createRandomEchoGVF(self):
+        #Pick a bit in the observation to see it's echo value. ie. approximate how long until you see it.
+
+        gvfs = []
+        for i in range(2):
+            #randBit = randint(0, 9) #TODO - make this actually random again.
+            randBit = i
+            gvf =  GVF(self.featureRepresentationLength,
+                        alpha / numberOfActiveFeatures, isOffPolicy=True, name="Echo to bit " + str(randBit))
+            gvf.gamma = makeEchoBitGammaFunction(randBit)
+            gvf.policy = moveForwardPolicy
+            gvf.cumulant = makeSeeBitCumulantFunction(randBit)
+            gvfs.append(gvf)
         return gvfs
 
     def createSameWhiteGVFs(self):
@@ -230,14 +271,43 @@ class LearningForeground:
 
     def createGVFs(self):
         #return self.createSameWhiteGVFs()
-        return self.createEchoGVF()
+        #return self.createEchoGVF()
+        return self.createRandomEchoGVF()
 
     """
     Create a feature representation using the existing GVFs, history and immediate observation
     """
     def createFeatureRepresentation(self, observation, action):
         #return self.createPartiallyObservableRepresentation(observation)
-        return self.createEchoRepresentation(observation, action)
+        #return self.createEchoRepresentation(observation, action)
+        return self.createRepresentationWithGVFs(observation, action)
+
+    def createRepresentationWithGVFs(self, observation, action):
+        if observation == None:
+            return None
+        else:
+            predictiveBits = []
+            for echoGVF in self.demons:
+                echoVector = numpy.zeros(11)
+                if self.previousState:
+                    echoValue = echoGVF.prediction(self.previousState)
+                    echoIndex = int(round(echoValue * 10))
+                    echoVector = numpy.zeros(11)
+                    echoVector[echoIndex] = 1
+                predictiveBits = numpy.append(predictiveBits, echoVector)
+
+            rep = numpy.append(observation, predictiveBits)
+            emptyRep = numpy.zeros(self.featureRepresentationLength / 2)
+
+            repWithLastAction = []
+
+            if action == "M":
+                repWithLastAction = numpy.append(rep, emptyRep)
+            else:
+                repWithLastAction = numpy.append(emptyRep, rep)
+
+            return repWithLastAction
+
 
     def createEchoRepresentation(self, observation, action):
         if observation == None:
@@ -299,12 +369,13 @@ class LearningForeground:
         self.triggerWorld.printWorld()
         episodeLengthArray = numpy.zeros(numberOfEpisodes)
         for run in range(numberOfRuns):
-            print("+++++++++ Run number " + str(run + 1) + "++++++++++++")
+            print("RUN NUMER: " + str(run + 1) + " .............")
             self.doubleQ.resetQ()
             self.resetEnvironment()
 
             for episode in range(numberOfEpisodes):
-                print("---- Episode ---- " + str(episode))
+                if (episode %200 == 0):
+                    print("- Episode: " + str(episode))
                 self.triggerWorld.reset()
                 isTerminal = False
                 self.lastAction = 0
@@ -313,8 +384,6 @@ class LearningForeground:
                 step = 0
                 while not isTerminal:
                     step = step + 1
-                    if step %200000 == 0:
-                        print("========== Timestep: " + str(step))
 
                     #action = self.behaviorPolicy.policy(self.previousState)
                     if self.previousState:
@@ -327,16 +396,20 @@ class LearningForeground:
                         action = "T"
 
                     self.currentAction = action
+                    """
                     print("")
                     print("------")
                     print("State learning about:")
+                    """
+                    """
                     if self.previousState:
                         print("X: " + str(self.previousState.X))
                     self.triggerWorld.printWorld()
-
+                    
+                    
                     if action == "T":
                         print("--- Trigger ---")
-
+                    """
                     (reward, observation) = self.triggerWorld.takeAction(action)
                     if observation == None:
                         isTerminal = True
@@ -366,15 +439,17 @@ class LearningForeground:
                     self.previousState = stateRepresentation
 
                     if isTerminal:
+                        """
                         print("")
                         print("-- Episode finished in " + str(step) + " steps.")
                         print("")
                         print("-- Old episode length: " + str(episodeLengthArray[episode]))
                         print("- steps this time: " + str(step))
-                        episodeLengthArray[episode] = episodeLengthArray[episode] + (1.0 / (run + 1.0)) * (step - episodeLengthArray[episode])
                         print("-- Adjusted episode length: " + str(episodeLengthArray[episode]))
-        print("")
-        print("------ finished with all runs ------ ")
+                        """
+                        episodeLengthArray[episode] = episodeLengthArray[episode] + (1.0 / (run + 1.0)) * (
+                                    step - episodeLengthArray[episode])
+
         self.plotAverageEpisodeLengths(episodeLengthArray, numberOfRuns)
 
     def plotAverageEpisodeLengths(self, plotLengthsArray, numberOfRuns):
@@ -398,9 +473,9 @@ class LearningForeground:
             demon = self.demons[0]
             predBefore = demon.prediction(self.previousState)
             demon.learn(oldState, action, newState)
-            print("Demon " + demon.name + " previous state prediction before learning: " + str(predBefore))
+            #print("Demon " + demon.name + " previous state prediction before learning: " + str(predBefore))
 
-            print("Demon" + demon.name + " previous state prediction after learning: " + str(demon.prediction(self.previousState)))
+            #print("Demon" + demon.name + " previous state prediction after learning: " + str(demon.prediction(self.previousState)))
             """
             for demon in self.demons:
                 predBefore = demon.prediction(self.previousState)
