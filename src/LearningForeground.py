@@ -26,7 +26,7 @@ def oneStepGammaFunction(colorObservation):
 def makeSeeBitCumulantFunction(bitIndex):
     def cumulantFunuction(colorObservation):
         val = 0
-        if colorObservation.X == None:
+        if colorObservation.X is None:
             #Terminal state
             return 0
         else:
@@ -39,7 +39,7 @@ def makeSeeBitCumulantFunction(bitIndex):
 def makeSeeColorCumulantFunction(color):
     def cumulantFunuction(colorObservation):
         val = 0
-        if colorObservation.X == None:
+        if colorObservation.X is None:
             #Terminal state
             return 0
         else:
@@ -62,7 +62,7 @@ def makeSeeColorCumulantFunction(color):
 def makeEchoBitGammaFunction(bitIndex):
     def gammaFunction(colorObservation):
         val = 0.8
-        if colorObservation.X == None:
+        if colorObservation.X is None:
             return 0.8
         else:
             if colorObservation.X[bitIndex] == 1:
@@ -74,7 +74,7 @@ def makeEchoBitGammaFunction(bitIndex):
 def makeEchoColorGammaFunction(color):
     def gammaFunction(colorObservation):
         val = 0.8
-        if colorObservation.X == None:
+        if colorObservation.X is None:
             return 0.8
         else:
             if color == 'r':
@@ -155,21 +155,6 @@ class LearningForeground:
         gvf.policy = moveForwardPolicy
         gvf.cumulant = makeSeeColorCumulantFunction('g')
         gvfs.append(gvf)
-        return gvfs
-
-    def createRandomEchoGVF(self):
-        #Pick a bit in the observation to see it's echo value. ie. approximate how long until you see it.
-
-        gvfs = []
-        for i in range(2):
-            #randBit = randint(0, 9) #TODO - make this actually random again.
-            randBit = i
-            gvf =  GVF(self.featureRepresentationLength,
-                        alpha / numberOfActiveFeatures, isOffPolicy=True, name="Echo to bit " + str(randBit))
-            gvf.gamma = makeEchoBitGammaFunction(randBit)
-            gvf.policy = moveForwardPolicy
-            gvf.cumulant = makeSeeBitCumulantFunction(randBit)
-            gvfs.append(gvf)
         return gvfs
 
     def createSameWhiteGVFs(self):
@@ -283,7 +268,7 @@ class LearningForeground:
         return self.createRepresentationWithGVFs(observation, action)
 
     def createRepresentationWithGVFs(self, observation, action):
-        if observation == None:
+        if observation is None:
             return None
         else:
             predictiveBits = []
@@ -292,12 +277,14 @@ class LearningForeground:
                 if self.previousState:
                     echoValue = echoGVF.prediction(self.previousState)
                     echoIndex = int(round(echoValue * 10))
+                    if echoIndex > 10:
+                        echoIndex = 10
                     echoVector = numpy.zeros(11)
                     echoVector[echoIndex] = 1
                 predictiveBits = numpy.append(predictiveBits, echoVector)
 
             rep = numpy.append(observation, predictiveBits)
-            emptyRep = numpy.zeros(self.featureRepresentationLength / 2)
+            emptyRep = numpy.zeros(int(self.featureRepresentationLength / 2))
 
             repWithLastAction = []
 
@@ -310,7 +297,7 @@ class LearningForeground:
 
 
     def createEchoRepresentation(self, observation, action):
-        if observation == None:
+        if observation is None:
             return None
         else:
             echoVector = numpy.zeros(11)
@@ -359,9 +346,12 @@ class LearningForeground:
     def resetEnvironment(self):
         self.lastAction = 0
         self.currentAction = 0
+        self.demons = self.createRandomEchoGVF()
+        """
         for demon in self.demons:
             demon.reset()
-            self.triggerWorld.reset()
+        """
+        self.triggerWorld.reset()
 
     def start(self, numberOfEpisodes = 100, numberOfRuns = 1):
 
@@ -369,13 +359,16 @@ class LearningForeground:
         self.triggerWorld.printWorld()
         episodeLengthArray = numpy.zeros(numberOfEpisodes)
         for run in range(numberOfRuns):
-            print("RUN NUMER: " + str(run + 1) + " .............")
+            print("RUN NUMER " + str(run + 1) + " .............")
             self.doubleQ.resetQ()
             self.resetEnvironment()
 
             for episode in range(numberOfEpisodes):
-                if (episode %200 == 0):
-                    print("- Episode: " + str(episode))
+                """
+                if episode %175 == 0:
+                    print("XXXX Episode " + str(episode) + " kulling demons XXXX")
+                    self.kullDemon()
+                """
                 self.triggerWorld.reset()
                 isTerminal = False
                 self.lastAction = 0
@@ -411,7 +404,7 @@ class LearningForeground:
                         print("--- Trigger ---")
                     """
                     (reward, observation) = self.triggerWorld.takeAction(action)
-                    if observation == None:
+                    if observation is None:
                         isTerminal = True
                     else:
                         isTerminal = False
@@ -425,7 +418,7 @@ class LearningForeground:
                         a = 1
                     if self.previousState:
                         self.doubleQ.learn(self.previousState.X, a, stateRepresentation.X, reward)
-                    if not featureRep == None:
+                    if not featureRep is None:
                         """
                         Kind of a temporary hack. We could normally learn from transitions to terminal states.
                         But in our case, terminal states only occer from trigger action. So nothing to learn from.
@@ -465,6 +458,81 @@ class LearningForeground:
 
         plt.show()
 
+    def createRandomGVF(self):
+        randBit = randint(0, 9) #TODO - make this actually random again.
+        if randBit == 1:
+            print("!!!!!!!!!!! Got it !!!!!!!!!!!!!!!")
+        print("Creating GVF with bit: " + str(randBit))
+        gvf = GVF(self.featureRepresentationLength,
+                  alpha / numberOfActiveFeatures, isOffPolicy=True, name="Echo to bit " + str(randBit))
+        gvf.gamma = makeEchoBitGammaFunction(randBit)
+        gvf.policy = moveForwardPolicy
+        gvf.cumulant = makeSeeBitCumulantFunction(randBit)
+        return gvf
+
+    def createRandomEchoGVF(self):
+        #Pick a bit in the observation to see it's echo value. ie. approximate how long until you see it.
+
+        gvfs = []
+        for i in range(2):
+            randBit = randint(0, 9) #TODO - make this actually random again.
+            if randBit == 1:
+                print("!!!!!!!!!!!!!!! Got it !!!!!!!!!!!!!!!")
+            #randBit = i
+
+            gvf =  GVF(self.featureRepresentationLength,
+                        alpha / numberOfActiveFeatures, isOffPolicy=True, name="Echo to bit " + str(randBit))
+            gvf.gamma = makeEchoBitGammaFunction(randBit)
+            gvf.policy = moveForwardPolicy
+            gvf.cumulant = makeSeeBitCumulantFunction(randBit)
+            print("New gvf: " + str(gvf.name))
+            gvfs.append(gvf)
+        return gvfs
+
+    def kullDemon(self):
+        #Determine weakest GVF and replace it with a random one.
+        indexOffset = 31
+        gvfOneScore = 0
+        #Look at the appropriate indexes in self.doubleQ to sum up the abs score
+        gvfOneIndexes = []
+        i = list(range(9,20))
+        gvfOneIndexes.extend(i)
+        i = list(range(9 + indexOffset * 1, 20 + indexOffset * 1))
+        gvfOneIndexes.extend(i)
+        i = list(range(9 + indexOffset * 2, 20 + indexOffset * 2))
+        gvfOneIndexes.extend(i)
+        i = list(range(9 + indexOffset * 3, 20 + indexOffset * 3))
+        gvfOneIndexes.extend(i)
+        for index in gvfOneIndexes:
+            gvfOneScore += fabs((self.doubleQ.theta1[index] + self.doubleQ.theta2[index]) / 2.0)
+
+        gvfTwoIndexes = []
+        i = list(range(21, 31))
+        gvfTwoIndexes.extend(i)
+        i = list(range(21 + indexOffset * 1, 31 + indexOffset * 1))
+        gvfTwoIndexes.extend(i)
+        i = list(range(21 + indexOffset * 2, 31 + indexOffset * 2))
+        gvfTwoIndexes.extend(i)
+        i = list(range(21 + indexOffset * 3, 31 + indexOffset * 3))
+        gvfTwoIndexes.extend(i)
+
+        gvfTwoScore = 0
+        for index in gvfTwoIndexes:
+            gvfTwoScore += fabs((self.doubleQ.theta1[index] + self.doubleQ.theta2[index]) / 2.0)
+        gvfNew = self.createRandomGVF()
+
+        print("New GVF: " + str(gvfNew.name))
+
+        if gvfOneScore > gvfTwoScore:
+            #Recycle gvfTwoScore
+            print("Kulled " + str(self.demons[1].name))
+            self.demons[1] = gvfNew
+        else:
+            #recycle gvf 1
+            print("Kulled " + str(self.demons[0].name))
+            self.demons[0] = gvfNew
+
+
     def updateDemons(self, oldState, action, newState):
 
         if self.previousState:
@@ -488,6 +556,6 @@ class LearningForeground:
 
 def start():
     foreground = LearningForeground()
-    foreground.start(numberOfEpisodes =  1000, numberOfRuns = 50)
+    foreground.start(numberOfEpisodes =  1500, numberOfRuns = 10)
 
 start()

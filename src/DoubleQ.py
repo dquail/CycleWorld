@@ -53,7 +53,7 @@ class DoubleQ:
         if (random() > 0.5):
             # print("Using theta1")
             nextStateValue = 0
-            if not nextState == None:
+            if not nextState is None:
                 # Non terminal
                 theta1BestNextAction = self.bestAction(nextState, self.theta1)
                 newStateValue = self.qHat(nextState, theta1BestNextAction, self.theta2)
@@ -68,7 +68,7 @@ class DoubleQ:
         else:
             # print("Using theta2")
             nextStateValue = 0
-            if not nextState == None:
+            if not nextState is None:
                 # Non terminal
                 theta2BestNextAction = self.bestAction(nextState, self.theta2)
                 newStateValue = self.qHat(nextState, theta2BestNextAction, self.theta1)
