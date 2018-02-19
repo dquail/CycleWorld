@@ -276,11 +276,13 @@ class LearningForeground:
                 echoVector = numpy.zeros(11)
                 if self.previousState:
                     echoValue = echoGVF.prediction(self.previousState)
-                    echoIndex = int(round(echoValue * 10))
-                    if echoIndex > 10:
-                        echoIndex = 10
-                    echoVector = numpy.zeros(11)
-                    echoVector[echoIndex] = 1
+                    if echoValue > 0.0:
+                        echoIndex = int(round(echoValue * 10))
+                        if echoIndex > 10:
+                            echoIndex = 10
+                        echoVector = numpy.zeros(11)
+                        echoVector[echoIndex] = 1
+
                 predictiveBits = numpy.append(predictiveBits, echoVector)
 
             rep = numpy.append(observation, predictiveBits)
@@ -369,6 +371,8 @@ class LearningForeground:
                     print("XXXX Episode " + str(episode) + " kulling demons XXXX")
                     self.kullDemon()
                 """
+                if episode %200 == 0:
+                    print("--- Episode " + str(episode) + " ... ")
                 self.triggerWorld.reset()
                 isTerminal = False
                 self.lastAction = 0
@@ -388,21 +392,27 @@ class LearningForeground:
                     elif action == 1:
                         action = "T"
 
+                    #TODO - Remove after testing
+                    
+                    if episode == 0:
+                        if (step < 10000):
+                            action = "M"
+                        else:
+                            print("OK now trying")
+
                     self.currentAction = action
+
+
                     """
-                    print("")
-                    print("------")
-                    print("State learning about:")
-                    """
-                    """
-                    if self.previousState:
-                        print("X: " + str(self.previousState.X))
+                    print("State: ")
                     self.triggerWorld.printWorld()
-                    
-                    
-                    if action == "T":
-                        print("--- Trigger ---")
+                    print("- Action decision: " + str(action))
+                    print(self.demons[1].name)
+                    if (self.previousState):
+                        prediction = self.demons[1].prediction(self.previousState)
+                        print("Prediction: " + str(prediction))
                     """
+
                     (reward, observation) = self.triggerWorld.takeAction(action)
                     if observation is None:
                         isTerminal = True
@@ -440,7 +450,9 @@ class LearningForeground:
                         print("- steps this time: " + str(step))
                         print("-- Adjusted episode length: " + str(episodeLengthArray[episode]))
                         """
-                        episodeLengthArray[episode] = episodeLengthArray[episode] + (1.0 / (run + 1.0)) * (
+                        print("Steps in episode: " + str(step))
+                        if episode > 0:
+                            episodeLengthArray[episode] = episodeLengthArray[episode] + (1.0 / (run + 1.0)) * (
                                     step - episodeLengthArray[episode])
 
         self.plotAverageEpisodeLengths(episodeLengthArray, numberOfRuns)
@@ -459,7 +471,8 @@ class LearningForeground:
         plt.show()
 
     def createRandomGVF(self):
-        randBit = randint(0, 9) #TODO - make this actually random again.
+        #randBit = randint(0, 9) #TODO - make this actually random again.
+        randBit = randint(0, 9)  # TODO - make this actually random again.
         if randBit == 1:
             print("!!!!!!!!!!! Got it !!!!!!!!!!!!!!!")
         print("Creating GVF with bit: " + str(randBit))
@@ -475,10 +488,15 @@ class LearningForeground:
 
         gvfs = []
         for i in range(2):
+            """
             randBit = randint(0, 9) #TODO - make this actually random again.
+
             if randBit == 1:
                 print("!!!!!!!!!!!!!!! Got it !!!!!!!!!!!!!!!")
-            #randBit = i
+            """
+
+            randBit = i
+            #randBit = i + 5
 
             gvf =  GVF(self.featureRepresentationLength,
                         alpha / numberOfActiveFeatures, isOffPolicy=True, name="Echo to bit " + str(randBit))
@@ -537,25 +555,18 @@ class LearningForeground:
 
         if self.previousState:
             #Learning
-            #TODO - REmove after testing
-            demon = self.demons[0]
-            predBefore = demon.prediction(self.previousState)
-            demon.learn(oldState, action, newState)
-            #print("Demon " + demon.name + " previous state prediction before learning: " + str(predBefore))
 
-            #print("Demon" + demon.name + " previous state prediction after learning: " + str(demon.prediction(self.previousState)))
-            """
             for demon in self.demons:
                 predBefore = demon.prediction(self.previousState)
                 demon.learn(oldState, action, newState)
-                print("Demon " + demon.name + " prediction before: " + str(predBefore))
-                print("Demon" + demon.name + " prediction after: " + str(demon.prediction(self.previousState)))
-            """
+                #print("Demon " + demon.name + " prediction before: " + str(predBefore))
+                #print("Demon" + demon.name + " prediction after: " + str(demon.prediction(self.previousState)))
+
 
 
 
 def start():
     foreground = LearningForeground()
-    foreground.start(numberOfEpisodes =  1500, numberOfRuns = 10)
+    foreground.start(numberOfEpisodes =  2000, numberOfRuns = 5)
 
 start()

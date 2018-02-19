@@ -16,12 +16,22 @@ class DoubleQ:
         self.alpha = alpha
         self.eps = eps
 
+        #TODO - Change after testing
+        self.theta1 = numpy.zeros(self.numberOfWeights)
+        self.theta2 = numpy.zeros(self.numberOfWeights)
+        """
         self.theta1 = -0.001 * rand(self.numberOfWeights)
         self.theta2 = -0.001 * rand(self.numberOfWeights)
+        """
 
     def resetQ(self):
+        #TODO - Change after testing
+        self.theta1 = numpy.zeros(self.numberOfWeights)
+        self.theta2 = numpy.zeros(self.numberOfWeights)
+        """
         self.theta1 = -0.001 * rand(self.numberOfWeights)
         self.theta2 = -0.001 * rand(self.numberOfWeights)
+        """
 
     def qHat(self, state, action, theta):
         value = 0

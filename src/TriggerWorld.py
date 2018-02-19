@@ -14,7 +14,7 @@ import numpy
 from TriggerState import *
 
 NUMBER_OF_STATES = 4
-TERMINAL_STATE_INDEX = 3 # temporary hack so that there is no terminal state
+TERMINAL_STATE_INDEX = 3
 
 class TriggerWorld:
 
@@ -32,7 +32,7 @@ class TriggerWorld:
                 s.triggerIsTerminal = True
             self.states.append(s)
 
-        self.states[3].color = 'g'
+        self.states[1].color = 'g'
 
     def reset(self):
         self.currentIndex = 0
@@ -138,7 +138,12 @@ class TriggerWorld:
         #Determine reward. 1 unless you are in the special state and choose left
 
         reward = -1
-
+        """
+        print("")
+        print("Action: " + str(action))
+        print("Start state:")
+        self.printWorld()
+        """
         if (action == 'M'):
             #Get observation
             if self.currentIndex == len(self.states) - 1:
@@ -152,10 +157,12 @@ class TriggerWorld:
 
         elif (action == 'T'):
             if (self.currentIndex == TERMINAL_STATE_INDEX):
+                #print("!!!! Goal state !!!")
                 nextState = None
                 self.reset()
             else:
                 nextState = currentState
+
 
         observation = self.createObservation(nextState)
 
