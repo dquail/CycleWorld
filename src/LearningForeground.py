@@ -15,13 +15,11 @@ from BehaviorPolicy import *
 from DoubleQ import *
 from random import randint
 import numpy
+from pylab import *
 
 alpha = 0.1
 #numberOfActiveFeatures = 5 #1 color bit + 1 bias bit + ~2 random bits + 1 GVF bit
 numberOfActiveFeatures = 3
-
-def oneStepGammaFunction(colorObservation):
-    return 0
 
 def makeSeeBitCumulantFunction(bitIndex):
     def cumulantFunuction(colorObservation):
@@ -33,30 +31,6 @@ def makeSeeBitCumulantFunction(bitIndex):
             if colorObservation.X[bitIndex] == 1:
                 val = 1
             return val
-    return cumulantFunuction
-
-
-def makeSeeColorCumulantFunction(color):
-    def cumulantFunuction(colorObservation):
-        val = 0
-        if colorObservation.X is None:
-            #Terminal state
-            return 0
-        else:
-            if color == 'r':
-                if colorObservation.X[0] == 1:
-                    val = 1
-            elif color == 'g':
-                if colorObservation.X[1] == 1:
-                    val = 1
-            elif color == 'b':
-                if colorObservation.X[2] == 1:
-                    val = 1
-            elif color == 'w':
-                if colorObservation.X[3] == 1:
-                    val = 1
-            return val
-
     return cumulantFunuction
 
 def makeEchoBitGammaFunction(bitIndex):
@@ -71,59 +45,6 @@ def makeEchoBitGammaFunction(bitIndex):
 
     return gammaFunction
 
-def makeEchoColorGammaFunction(color):
-    def gammaFunction(colorObservation):
-        val = 0.8
-        if colorObservation.X is None:
-            return 0.8
-        else:
-            if color == 'r':
-                if colorObservation.X[0] == 1:
-                    val = 0
-            elif color == 'g':
-                if colorObservation.X[1] == 1:
-                    val = 0
-            elif color == 'b':
-                if colorObservation.X[2] == 1:
-                    val = 0
-            elif color == 'w':
-                if colorObservation.X[3] == 1:
-                    val = 0
-            return val
-
-    return gammaFunction
-
-def makeSeeColorGammaFunction(color):
-    def gammaFunction(colorObservation):
-        val = 0
-        if color == 'r':
-            if colorObservation.X[0] == 1:
-                val = 1
-        elif color == 'g':
-            if colorObservation.X[1] == 1:
-                val = 1
-        elif color == 'b':
-            if colorObservation.X[2] == 1:
-                val = 1
-        elif color == 'w':
-            if colorObservation.X[3] == 1:
-                val = 1
-        return val
-
-    return gammaFunction
-
-def zeroGamma(state):
-    return 0
-
-def timestepCumulant(state):
-    return 1
-
-def turnLeftPolicy(state):
-    return "L"
-
-def turnRightPolicy(state):
-    return "R"
-
 def moveForwardPolicy(state):
     return 'M'
 
@@ -131,9 +52,10 @@ class LearningForeground:
 
     def __init__(self):
         self.triggerWorld = TriggerWorld()
-
+        self.epsilon = 0.1
         self.behaviorPolicy = BehaviorPolicy()
-
+        self.candidateBits = list(range(9))
+        self.bitsPredicted = []
         self.lastAction = 0
         self.currentAction = 0 #Bit of a hack to allow state representations based on GVFs to peak at last action and current action
         # self.featureRepresentationLength = 6*6*4 + 6 #6 by 6 grid, 4 orientations, + 6 color bits
@@ -157,107 +79,11 @@ class LearningForeground:
         gvfs.append(gvf)
         return gvfs
 
-    def createSameWhiteGVFs(self):
-        gvfs = []
-        gvf1 =  GVF(self.featureRepresentationLength,
-                    alpha / numberOfActiveFeatures, isOffPolicy=False, name="1 step white")
-        gvf1.gamma = oneStepGammaFunction
-        gvf1.cumulant = makeSeeColorCumulantFunction('w')
-        gvfs.append(gvf1)
-
-        gvf2 = GVF(self.featureRepresentationLength,
-                   alpha / numberOfActiveFeatures, isOffPolicy=False, name="1 step white")
-        gvf2.gamma = oneStepGammaFunction
-        gvf2.cumulant = makeSeeColorCumulantFunction('w')
-        gvfs.append(gvf2)
-
-        gvf3 = GVF(self.featureRepresentationLength,
-                   alpha / numberOfActiveFeatures, isOffPolicy=False, name="1 step white")
-        gvf3.gamma = oneStepGammaFunction
-        gvf3.cumulant = makeSeeColorCumulantFunction('w')
-        gvfs.append(gvf3)
-
-        gvf4 = GVF(self.featureRepresentationLength,
-                   alpha / numberOfActiveFeatures, isOffPolicy=False, name="1 step white")
-        gvf4.gamma = oneStepGammaFunction
-        gvf4.cumulant = makeSeeColorCumulantFunction('w')
-        gvfs.append(gvf4)
-
-        return gvfs
-
-    def createGreenGVFs(self):
-        gvfs = []
-        gvf1 =  GVF(self.featureRepresentationLength,
-                    alpha / numberOfActiveFeatures, isOffPolicy=False, name="1 step green")
-        gvf1.gamma = oneStepGammaFunction
-        gvf1.cumulant = makeSeeColorCumulantFunction('g')
-        gvfs.append(gvf1)
-
-        gvf2 = GVF(self.featureRepresentationLength,
-                   alpha / numberOfActiveFeatures, isOffPolicy=False, name="2 step green")
-        gvf2.gamma = oneStepGammaFunction
-        def cumulant2(state):
-            return gvf1.prediction(state)
-        gvf2.cumulant = cumulant2
-        gvfs.append(gvf2)
-
-        gvf3 = GVF(self.featureRepresentationLength,
-                   alpha / numberOfActiveFeatures, isOffPolicy=False, name="3 step green")
-        gvf3.gamma = oneStepGammaFunction
-        def cumulant3(state):
-            return gvf2.prediction(state)
-        gvf3.cumulant = cumulant3
-        gvfs.append(gvf3)
-
-        gvf4 = GVF(self.featureRepresentationLength,
-                   alpha / numberOfActiveFeatures, isOffPolicy=False, name="4 step green")
-        gvf4.gamma = oneStepGammaFunction
-        def cumulant4(state):
-            return gvf3.prediction(state)
-        gvf4.cumulant = cumulant4
-        gvfs.append(gvf4)
-
-        return gvfs
-
-    def createWhiteGVFs(self):
-        gvfs = []
-        gvf1 =  GVF(self.featureRepresentationLength,
-                    alpha / numberOfActiveFeatures, isOffPolicy=False, name="1 step white")
-        gvf1.gamma = oneStepGammaFunction
-        gvf1.cumulant = makeSeeColorCumulantFunction('w')
-        gvfs.append(gvf1)
-
-        gvf2 = GVF(self.featureRepresentationLength,
-                   alpha / numberOfActiveFeatures, isOffPolicy=False, name="2 step white")
-        gvf2.gamma = oneStepGammaFunction
-        def cumulant2(state):
-            return gvf1.prediction(state)
-        gvf2.cumulant = cumulant2
-        gvfs.append(gvf2)
-
-        gvf3 = GVF(self.featureRepresentationLength,
-                   alpha / numberOfActiveFeatures, isOffPolicy=False, name="3 step white")
-        gvf3.gamma = oneStepGammaFunction
-        def cumulant3(state):
-            return gvf2.prediction(state)
-        gvf3.cumulant = cumulant3
-        gvfs.append(gvf3)
-
-        gvf4 = GVF(self.featureRepresentationLength,
-                   alpha / numberOfActiveFeatures, isOffPolicy=False, name="4 step white")
-        gvf4.gamma = oneStepGammaFunction
-        def cumulant4(state):
-            return gvf3.prediction(state)
-        gvf4.cumulant = cumulant4
-        gvfs.append(gvf4)
-
-        return gvfs
-
 
     def createGVFs(self):
         #return self.createSameWhiteGVFs()
         #return self.createEchoGVF()
-        return self.createRandomEchoGVF()
+        return self.initializeRandomGVFS()
 
     """
     Create a feature representation using the existing GVFs, history and immediate observation
@@ -298,61 +124,16 @@ class LearningForeground:
             return repWithLastAction
 
 
-    def createEchoRepresentation(self, observation, action):
-        if observation is None:
-            return None
-        else:
-            echoVector = numpy.zeros(11)
-            if self.previousState:
-            #if False:
-                echoGVF = self.demons[0]
-                echoValue = echoGVF.prediction(self.previousState)
-                echoIndex = int(round(echoValue * 10))
-                echoVector = numpy.zeros(11)
-                echoVector[echoIndex] = 1
-
-
-            rep = numpy.append(observation, echoVector)
-            emptyRep = numpy.zeros(self.featureRepresentationLength / 2)
-
-            repWithLastAction = []
-
-            if action == "M":
-                repWithLastAction = numpy.append(rep, emptyRep)
-            else:
-                repWithLastAction = numpy.append(emptyRep, rep)
-
-            return repWithLastAction
-
-
-    """
-    Returns information which includes:
-    - the previous GVF outputs for the previous state (8 GVFs X 3 possible actions)
-    - Bit corresponding to the color observed
-    - Bit corresponding to the bump sensor
-    """
-    def createPartiallyObservableRepresentation(self, observation):
-        vectorSize = len(observation) + len(self.demons)
-
-        gvfPredictionVector = []
-
-        for demon in self.demons:
-            priorDemonBit = 0
-            if self.lastAction:
-                priorDemonOutput = demon.prediction(self.previousState)
-                priorDemonBit = int(round(priorDemonOutput))
-            gvfPredictionVector.append(priorDemonBit)
-        rep = numpy.append(observation, gvfPredictionVector)
-        return rep
-
     def resetEnvironment(self):
         self.lastAction = 0
         self.currentAction = 0
-        self.demons = self.createRandomEchoGVF()
+        self.demons = self.initializeRandomGVFS()
         """
         for demon in self.demons:
             demon.reset()
         """
+        self.candidateBits = list(range(9))
+        self.bitsPredicted = []
         self.triggerWorld.reset()
 
     def start(self, numberOfEpisodes = 100, numberOfRuns = 1):
@@ -362,16 +143,17 @@ class LearningForeground:
         episodeLengthArray = numpy.zeros(numberOfEpisodes)
         for run in range(numberOfRuns):
             print("RUN NUMER " + str(run + 1) + " .............")
+
             self.doubleQ.resetQ()
             self.resetEnvironment()
 
             for episode in range(numberOfEpisodes):
-                """
-                if episode %175 == 0:
-                    print("XXXX Episode " + str(episode) + " kulling demons XXXX")
+
+                if episode %2500 == 0:
+                    #print("XXXX Episode " + str(episode) + " kulling demons XXXX")
                     self.kullDemon()
-                """
-                if episode %200 == 0:
+
+                if episode %1000 == 0:
                     print("--- Episode " + str(episode) + " ... ")
                 self.triggerWorld.reset()
                 isTerminal = False
@@ -384,7 +166,12 @@ class LearningForeground:
 
                     #action = self.behaviorPolicy.policy(self.previousState)
                     if self.previousState:
-                        action = self.doubleQ.policy(self.previousState.X)
+                        randomE = random()
+                        if (randomE < self.epsilon):
+                            #explore
+                            action = randint(0,1)
+                        else:
+                            action = self.doubleQ.policy(self.previousState.X)
                     else:
                         action = 0
                     if action == 0:
@@ -393,13 +180,13 @@ class LearningForeground:
                         action = "T"
 
                     #TODO - Remove after testing
-                    
+                    """
                     if episode == 0:
                         if (step < 10000):
                             action = "M"
                         else:
                             print("OK now trying")
-
+                    """
                     self.currentAction = action
 
 
@@ -450,14 +237,15 @@ class LearningForeground:
                         print("- steps this time: " + str(step))
                         print("-- Adjusted episode length: " + str(episodeLengthArray[episode]))
                         """
-                        print("Steps in episode: " + str(step))
+                        print("Steps in episode  " + str(episode) + ": " + str(step))
                         if episode > 0:
                             episodeLengthArray[episode] = episodeLengthArray[episode] + (1.0 / (run + 1.0)) * (
                                     step - episodeLengthArray[episode])
-
+            input("Finished run. Press ENTER to continue ...")
         self.plotAverageEpisodeLengths(episodeLengthArray, numberOfRuns)
 
     def plotAverageEpisodeLengths(self, plotLengthsArray, numberOfRuns):
+        b = plotLengthsArray[len(plotLengthsArray) - 10: len(plotLengthsArray) - 10 + 5]
         fig = plt.figure(1)
         fig.suptitle('Average Episode Length', fontsize=14, fontweight='bold')
         ax = fig.add_subplot(211)
@@ -470,11 +258,30 @@ class LearningForeground:
 
         plt.show()
 
+    def randomBitIndex(self, excludeBitsTried = False):
+        randomBit = 0
+        if not excludeBitsTried:
+            randomBit = numpy.random.randint(0, 9)
+        else:
+            #Naive strategy. If there are no candidate bits left to choose from, repopulate them all
+            if (len(self.candidateBits) == 0):
+                self.candidateBits = list(range(9))
+                for bit in self.bitsPredicted:
+                    self.candidateBits.remove(bit)
+            randomBit = numpy.random.choice(self.candidateBits)
+
+        self.candidateBits.remove(randomBit)
+        self.bitsPredicted.append(randomBit)
+
+        return randomBit
+        #exclusions is an array of indexes to not choose from
+
     def createRandomGVF(self):
-        #randBit = randint(0, 9) #TODO - make this actually random again.
-        randBit = randint(0, 9)  # TODO - make this actually random again.
+        randBit = randint(0, 9) #TODO - make this actually random again.
+        #randBit = randint(0, 3)  # TODO - make this actually random again.
         if randBit == 1:
             print("!!!!!!!!!!! Got it !!!!!!!!!!!!!!!")
+            input("Replaced with proper GVF. ENTER to continue ...")
         print("Creating GVF with bit: " + str(randBit))
         gvf = GVF(self.featureRepresentationLength,
                   alpha / numberOfActiveFeatures, isOffPolicy=True, name="Echo to bit " + str(randBit))
@@ -483,19 +290,21 @@ class LearningForeground:
         gvf.cumulant = makeSeeBitCumulantFunction(randBit)
         return gvf
 
-    def createRandomEchoGVF(self):
+    def initializeRandomGVFS(self):
         #Pick a bit in the observation to see it's echo value. ie. approximate how long until you see it.
 
         gvfs = []
         for i in range(2):
-            """
+
             randBit = randint(0, 9) #TODO - make this actually random again.
+            #randBit = randint(0, 3)  # TODO - make this actually random again.
 
             if randBit == 1:
+                input("Created GVF for input[1] in first shot. ENTER to continue ...")
                 print("!!!!!!!!!!!!!!! Got it !!!!!!!!!!!!!!!")
-            """
 
-            randBit = i
+
+            #randBit = i
             #randBit = i + 5
 
             gvf =  GVF(self.featureRepresentationLength,
@@ -544,10 +353,15 @@ class LearningForeground:
         if gvfOneScore > gvfTwoScore:
             #Recycle gvfTwoScore
             print("Kulled " + str(self.demons[1].name))
+            if (self.demons[1].name == "Echo to bit 1"):
+                input("Kulling wrong one. Enter to continue ...")
             self.demons[1] = gvfNew
+
         else:
             #recycle gvf 1
             print("Kulled " + str(self.demons[0].name))
+            if (self.demons[0].name == "Echo to bit 1"):
+                input("Kulling wrong one. Enter to continue ...")
             self.demons[0] = gvfNew
 
 
@@ -567,6 +381,6 @@ class LearningForeground:
 
 def start():
     foreground = LearningForeground()
-    foreground.start(numberOfEpisodes =  2000, numberOfRuns = 5)
+    foreground.start(numberOfEpisodes =  20000, numberOfRuns = 100)
 
 start()

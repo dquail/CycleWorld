@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="19310aa0-6517-4268-96f2-d7ed4f452a9f" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/src/DoubleQ.py" afterPath="$PROJECT_DIR$/src/DoubleQ.py" />
       <change beforePath="$PROJECT_DIR$/src/LearningForeground.py" afterPath="$PROJECT_DIR$/src/LearningForeground.py" />
-      <change beforePath="$PROJECT_DIR$/src/TriggerWorld.py" afterPath="$PROJECT_DIR$/src/TriggerWorld.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -31,7 +29,7 @@
         <entry file="file://$PROJECT_DIR$/src/TriggerWorld.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="142">
-              <caret line="70" column="13" lean-forward="false" selection-start-line="70" selection-start-column="13" selection-end-line="70" selection-end-column="13" />
+              <caret line="62" column="0" lean-forward="false" selection-start-line="62" selection-start-column="0" selection-end-line="62" selection-end-column="0" />
               <folding>
                 <element signature="e#387#399#0" expanded="true" />
               </folding>
@@ -52,8 +50,8 @@
       <file leaf-file-name="LearningForeground.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/LearningForeground.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="205">
-              <caret line="395" column="20" lean-forward="true" selection-start-line="395" selection-start-column="20" selection-end-line="395" selection-end-column="20" />
+            <state relative-caret-position="379">
+              <caret line="129" column="49" lean-forward="false" selection-start-line="129" selection-start-column="49" selection-end-line="129" selection-end-column="49" />
               <folding>
                 <element signature="e#203#220#0" expanded="true" />
               </folding>
@@ -119,12 +117,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>return gvf</find>
-      <find>kullDe</find>
-      <find>createRandom</find>
-      <find>Episode</find>
-      <find>&quot;E</find>
-      <find>kullDemon</find>
       <find>randint(0,</find>
       <find>randBit</find>
       <find>&quot;Got it</find>
@@ -133,7 +125,6 @@
       <find>resetEnv</find>
       <find>Kulling demon</find>
       <find>kulling dem</find>
-      <find>Got it</find>
       <find>average</find>
       <find>plot</find>
       <find>got it</find>
@@ -141,7 +132,6 @@
       <find>Episode</find>
       <find>Episode in steps</find>
       <find>== None</find>
-      <find>kull</find>
       <find>= &quot;M&quot;</find>
       <find>createRandomEchoGVF</find>
       <find>makeEchoBitGammaFunction</find>
@@ -149,6 +139,14 @@
       <find>createObser</find>
       <find>Action decision</find>
       <find>TODO</find>
+      <find>kullDemon</find>
+      <find>self.epsilon</find>
+      <find>kull</find>
+      <find>kullD</find>
+      <find>Got it</find>
+      <find>self.candidateBits</find>
+      <find>resetE</find>
+      <find>createPartially</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -175,8 +173,8 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="62" />
-    <option name="y" value="47" />
+    <option name="x" value="73" />
+    <option name="y" value="143" />
     <option name="width" value="1088" />
     <option name="height" value="880" />
   </component>
@@ -272,7 +270,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="62" y="47" width="1088" height="880" extended-state="0" />
+    <frame x="73" y="143" width="1088" height="880" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18933824" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -302,32 +300,27 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/LearningForeground.py</url>
-          <line>571</line>
+          <line>385</line>
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/LearningForeground.py</url>
-          <line>460</line>
+          <line>248</line>
           <option name="timeStamp" value="50" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/LearningForeground.py</url>
-          <line>511</line>
-          <option name="timeStamp" value="73" />
+          <line>282</line>
+          <option name="timeStamp" value="88" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/LearningForeground.py</url>
-          <line>364</line>
-          <option name="timeStamp" value="74" />
+          <line>303</line>
+          <option name="timeStamp" value="89" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/LearningForeground.py</url>
-          <line>374</line>
-          <option name="timeStamp" value="79" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/TriggerWorld.py</url>
-          <line>62</line>
-          <option name="timeStamp" value="85" />
+          <line>363</line>
+          <option name="timeStamp" value="91" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
@@ -340,7 +333,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="86" />
+      <option name="time" value="92" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -454,7 +447,7 @@
     <entry file="file://$PROJECT_DIR$/src/TriggerWorld.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="142">
-          <caret line="70" column="13" lean-forward="false" selection-start-line="70" selection-start-column="13" selection-end-line="70" selection-end-column="13" />
+          <caret line="62" column="0" lean-forward="false" selection-start-line="62" selection-start-column="0" selection-end-line="62" selection-end-column="0" />
           <folding>
             <element signature="e#387#399#0" expanded="true" />
           </folding>
@@ -463,8 +456,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/LearningForeground.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="205">
-          <caret line="395" column="20" lean-forward="true" selection-start-line="395" selection-start-column="20" selection-end-line="395" selection-end-column="20" />
+        <state relative-caret-position="379">
+          <caret line="129" column="49" lean-forward="false" selection-start-line="129" selection-start-column="49" selection-end-line="129" selection-end-column="49" />
           <folding>
             <element signature="e#203#220#0" expanded="true" />
           </folding>
