@@ -50,11 +50,21 @@
       <file leaf-file-name="LearningForeground.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/LearningForeground.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="379">
-              <caret line="129" column="49" lean-forward="false" selection-start-line="129" selection-start-column="49" selection-end-line="129" selection-end-column="49" />
+            <state relative-caret-position="142">
+              <caret line="218" column="0" lean-forward="false" selection-start-line="218" selection-start-column="0" selection-end-line="218" selection-end-column="0" />
               <folding>
                 <element signature="e#203#220#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="GVFManager.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/GVFManager.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -117,15 +127,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>randint(0,</find>
-      <find>randBit</find>
-      <find>&quot;Got it</find>
-      <find>createRandomGVF</find>
-      <find>self.demons</find>
-      <find>resetEnv</find>
-      <find>Kulling demon</find>
-      <find>kulling dem</find>
-      <find>average</find>
       <find>plot</find>
       <find>got it</find>
       <find>createObservation</find>
@@ -133,7 +134,6 @@
       <find>Episode in steps</find>
       <find>== None</find>
       <find>= &quot;M&quot;</find>
-      <find>createRandomEchoGVF</find>
       <find>makeEchoBitGammaFunction</find>
       <find>createRepresentationWithG</find>
       <find>createObser</find>
@@ -141,12 +141,22 @@
       <find>TODO</find>
       <find>kullDemon</find>
       <find>self.epsilon</find>
-      <find>kull</find>
       <find>kullD</find>
       <find>Got it</find>
       <find>self.candidateBits</find>
       <find>resetE</find>
       <find>createPartially</find>
+      <find>createRandomEchoGVF</find>
+      <find>kull</find>
+      <find>self.demon</find>
+      <find>initializeCandidate</find>
+      <find>initializeRandomGV</find>
+      <find>createGVFs</find>
+      <find>resetGV</find>
+      <find>candidateGVF</find>
+      <find>self.candidateGVFs</find>
+      <find>len(self.candid</find>
+      <find>len(self.gv</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -168,6 +178,7 @@
         <option value="$PROJECT_DIR$/src/GVF.py" />
         <option value="$PROJECT_DIR$/src/DoubleQ.py" />
         <option value="$PROJECT_DIR$/src/TriggerWorld.py" />
+        <option value="$PROJECT_DIR$/src/GVFManager.py" />
         <option value="$PROJECT_DIR$/src/LearningForeground.py" />
       </list>
     </option>
@@ -300,27 +311,22 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/LearningForeground.py</url>
-          <line>385</line>
+          <line>449</line>
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/LearningForeground.py</url>
-          <line>248</line>
+          <line>419</line>
           <option name="timeStamp" value="50" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/LearningForeground.py</url>
-          <line>282</line>
-          <option name="timeStamp" value="88" />
+          <line>311</line>
+          <option name="timeStamp" value="92" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/LearningForeground.py</url>
-          <line>303</line>
-          <option name="timeStamp" value="89" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/LearningForeground.py</url>
-          <line>363</line>
-          <option name="timeStamp" value="91" />
+          <line>223</line>
+          <option name="timeStamp" value="95" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
@@ -333,7 +339,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="92" />
+      <option name="time" value="97" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -454,10 +460,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/GVFManager.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/LearningForeground.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="379">
-          <caret line="129" column="49" lean-forward="false" selection-start-line="129" selection-start-column="49" selection-end-line="129" selection-end-column="49" />
+        <state relative-caret-position="142">
+          <caret line="218" column="0" lean-forward="false" selection-start-line="218" selection-start-column="0" selection-end-line="218" selection-end-column="0" />
           <folding>
             <element signature="e#203#220#0" expanded="true" />
           </folding>

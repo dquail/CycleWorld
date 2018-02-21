@@ -9,7 +9,6 @@ LearningForeground contains a collection of GVF's. It accepts new state represen
 """
 
 from GVF import *
-from CycleWorld import *
 from TriggerWorld import *
 from BehaviorPolicy import *
 from DoubleQ import *
@@ -54,8 +53,6 @@ class LearningForeground:
         self.triggerWorld = TriggerWorld()
         self.epsilon = 0.1
         self.behaviorPolicy = BehaviorPolicy()
-        self.candidateBits = list(range(9))
-        self.bitsPredicted = []
         self.lastAction = 0
         self.currentAction = 0 #Bit of a hack to allow state representations based on GVFs to peak at last action and current action
         # self.featureRepresentationLength = 6*6*4 + 6 #6 by 6 grid, 4 orientations, + 6 color bits
@@ -63,7 +60,12 @@ class LearningForeground:
         #self.featureRepresentationLength = (4 + 1 + 4 + 11) * 2  # ie.4 color bits + bias bit + 4 random bits + 11 GVF bits X 2 previous actions
         self.featureRepresentationLength = (4 + 1 + 4 + 11 * 2) * 2  # ie.4 color bits + bias bit + 4 random bits + 11X2 GVF bits X 2 previous actions
         #Initialize the demons appropriately depending on what test you are runnning by commenting / uncommenting
-        self.demons = self.createGVFs()
+
+        self.candidateGVFs  = []
+        self.kulledGVFs = []
+        self.activeGVFs = []
+
+        self.createGVFs()
 
         self.doubleQ = DoubleQ(alpha=0.1, eps = 0.1, numberOfFeatures = self.featureRepresentationLength, numberOfActions = 2)
 
@@ -83,7 +85,7 @@ class LearningForeground:
     def createGVFs(self):
         #return self.createSameWhiteGVFs()
         #return self.createEchoGVF()
-        return self.initializeRandomGVFS()
+        self.resetGVFS()
 
     """
     Create a feature representation using the existing GVFs, history and immediate observation
@@ -98,7 +100,7 @@ class LearningForeground:
             return None
         else:
             predictiveBits = []
-            for echoGVF in self.demons:
+            for echoGVF in self.activeGVFs:
                 echoVector = numpy.zeros(11)
                 if self.previousState:
                     echoValue = echoGVF.prediction(self.previousState)
@@ -127,14 +129,182 @@ class LearningForeground:
     def resetEnvironment(self):
         self.lastAction = 0
         self.currentAction = 0
-        self.demons = self.initializeRandomGVFS()
+        #self.demons = self.initializeRandomGVFS()
+        self.resetGVFS()
         """
         for demon in self.demons:
             demon.reset()
         """
-        self.candidateBits = list(range(9))
-        self.bitsPredicted = []
         self.triggerWorld.reset()
+
+
+
+    def randomBitIndex(self, excludeBitsTried = False):
+        randomBit = 0
+        if not excludeBitsTried:
+            randomBit = numpy.random.randint(0, 9)
+        else:
+            #Naive strategy. If there are no candidate bits left to choose from, repopulate them all
+            if (len(self.candidateBits) == 0):
+                self.candidateBits = list(range(9))
+                for bit in self.bitsPredicted:
+                    self.candidateBits.remove(bit)
+            randomBit = numpy.random.choice(self.candidateBits)
+
+        self.candidateBits.remove(randomBit)
+        self.bitsPredicted.append(randomBit)
+
+        return randomBit
+        #exclusions is an array of indexes to not choose from
+
+    def createRandomGVF(self):
+        randBit = randint(0, 9) #TODO - make this actually random again.
+        #randBit = randint(0, 3)  # TODO - make this actually random again.
+        if randBit == 1:
+            print("!!!!!!!!!!! Got it !!!!!!!!!!!!!!!")
+            input("Replaced with proper GVF. ENTER to continue ...")
+        print("Creating GVF with bit: " + str(randBit))
+        gvf = GVF(self.featureRepresentationLength,
+                  alpha / numberOfActiveFeatures, isOffPolicy=True, name="Echo to bit " + str(randBit))
+        gvf.gamma = makeEchoBitGammaFunction(randBit)
+        gvf.policy = moveForwardPolicy
+        gvf.cumulant = makeSeeBitCumulantFunction(randBit)
+        return gvf
+
+    def weakestGVF(self):
+        #Determine weakest GVF and replace it with a random one.
+        indexOffset = 31
+        gvfOneScore = 0
+        #Look at the appropriate indexes in self.doubleQ to sum up the abs score
+        gvfOneIndexes = []
+        i = list(range(9,20))
+        gvfOneIndexes.extend(i)
+        i = list(range(9 + indexOffset * 1, 20 + indexOffset * 1))
+        gvfOneIndexes.extend(i)
+        i = list(range(9 + indexOffset * 2, 20 + indexOffset * 2))
+        gvfOneIndexes.extend(i)
+        i = list(range(9 + indexOffset * 3, 20 + indexOffset * 3))
+        gvfOneIndexes.extend(i)
+        for index in gvfOneIndexes:
+            gvfOneScore += fabs((self.doubleQ.theta1[index] + self.doubleQ.theta2[index]) / 2.0)
+
+        gvfTwoIndexes = []
+        i = list(range(21, 31))
+        gvfTwoIndexes.extend(i)
+        i = list(range(21 + indexOffset * 1, 31 + indexOffset * 1))
+        gvfTwoIndexes.extend(i)
+        i = list(range(21 + indexOffset * 2, 31 + indexOffset * 2))
+        gvfTwoIndexes.extend(i)
+        i = list(range(21 + indexOffset * 3, 31 + indexOffset * 3))
+        gvfTwoIndexes.extend(i)
+
+        gvfTwoScore = 0
+        for index in gvfTwoIndexes:
+            gvfTwoScore += fabs((self.doubleQ.theta1[index] + self.doubleQ.theta2[index]) / 2.0)
+
+        gvfToKull = None
+
+        if gvfOneScore > gvfTwoScore:
+            #Recycle gvfTwoScore
+            gvfToKull = self.activeGVFs[1]
+        else:
+            gvfToKull = self.activeGVFs[0]
+
+        return gvfToKull
+
+    def kullAndCreate(self):
+        #Determine weakest GVF
+        weakestGVF = self.weakestGVF()
+        self.kulledGVFs.append(weakestGVF)
+        weakestIndex = self.activeGVFs.index(weakestGVF)
+
+        #Get a new candidate GVF
+        if len(self.candidateGVFs) == 0:
+            #No more candidate GVFS to try. Move all kulled ones back (but not active
+            for gvf in self.kulledGVFs:
+                self.candidateGVFs.append(gvf)
+            self.kulledGVFs = []
+        gvf = self.getRandomGVFFromCandidates()
+        self.activeGVFs[weakestIndex] = gvf
+        self.candidateGVFs.remove(gvf)
+        #TODO - bug - need to maintain the ordering of the GVFs
+
+    def resetGVFS(self):
+        #Pick a bit in the observation to see it's echo value. ie. approximate how long until you see it.
+        self.candidateGVFs  = []
+        self.kulledGVFs = []
+        self.activeGVFs = []
+
+        #Reinitialize the candidate GVFS
+        for i in range(9):
+            gvf =  GVF(self.featureRepresentationLength,
+                        alpha / numberOfActiveFeatures, isOffPolicy=True, name="Echo to bit " + str(i))
+            gvf.gamma = makeEchoBitGammaFunction(i)
+            gvf.policy = moveForwardPolicy
+            gvf.cumulant = makeSeeBitCumulantFunction(i)
+            print("New gvf: " + str(gvf.name))
+            self.candidateGVFs.append(gvf)
+
+        #Move 2 random candidates to active
+        for i in range(2):
+            gvf = self.getRandomGVFFromCandidates()
+            self.candidateGVFs.remove(gvf)
+            self.activeGVFs.append(gvf)
+
+    def getRandomGVFFromCandidates(self):
+        if len(self.candidateGVFs) == 0:
+            return None
+        else:
+            return self.candidateGVFs[randint(0, len(self.candidateGVFs) - 1)]
+
+    def kullDemon(self):
+        #Determine weakest GVF and replace it with a random one.
+        indexOffset = 31
+        gvfOneScore = 0
+        #Look at the appropriate indexes in self.doubleQ to sum up the abs score
+        gvfOneIndexes = []
+        i = list(range(9,20))
+        gvfOneIndexes.extend(i)
+        i = list(range(9 + indexOffset * 1, 20 + indexOffset * 1))
+        gvfOneIndexes.extend(i)
+        i = list(range(9 + indexOffset * 2, 20 + indexOffset * 2))
+        gvfOneIndexes.extend(i)
+        i = list(range(9 + indexOffset * 3, 20 + indexOffset * 3))
+        gvfOneIndexes.extend(i)
+        for index in gvfOneIndexes:
+            gvfOneScore += fabs((self.doubleQ.theta1[index] + self.doubleQ.theta2[index]) / 2.0)
+
+        gvfTwoIndexes = []
+        i = list(range(21, 31))
+        gvfTwoIndexes.extend(i)
+        i = list(range(21 + indexOffset * 1, 31 + indexOffset * 1))
+        gvfTwoIndexes.extend(i)
+        i = list(range(21 + indexOffset * 2, 31 + indexOffset * 2))
+        gvfTwoIndexes.extend(i)
+        i = list(range(21 + indexOffset * 3, 31 + indexOffset * 3))
+        gvfTwoIndexes.extend(i)
+
+        gvfTwoScore = 0
+        for index in gvfTwoIndexes:
+            gvfTwoScore += fabs((self.doubleQ.theta1[index] + self.doubleQ.theta2[index]) / 2.0)
+        gvfNew = self.createRandomGVF()
+
+        print("New GVF: " + str(gvfNew.name))
+
+        if gvfOneScore > gvfTwoScore:
+            #Recycle gvfTwoScore
+            print("Kulled " + str(self.demons[1].name))
+            if (self.demons[1].name == "Echo to bit 1"):
+                input("Kulling wrong one. Enter to continue ...")
+            self.demons[1] = gvfNew
+
+        else:
+            #recycle gvf 1
+            print("Kulled " + str(self.demons[0].name))
+            if (self.demons[0].name == "Echo to bit 1"):
+                input("Kulling wrong one. Enter to continue ...")
+            self.demons[0] = gvfNew
+
 
     def start(self, numberOfEpisodes = 100, numberOfRuns = 1):
 
@@ -147,11 +317,12 @@ class LearningForeground:
             self.doubleQ.resetQ()
             self.resetEnvironment()
 
-            for episode in range(numberOfEpisodes):
+            for episode in range(1, numberOfEpisodes):
 
                 if episode %2500 == 0:
                     #print("XXXX Episode " + str(episode) + " kulling demons XXXX")
-                    self.kullDemon()
+                    #self.kullDemon()
+                    self.kullAndCreate()
 
                 if episode %1000 == 0:
                     print("--- Episode " + str(episode) + " ... ")
@@ -258,119 +429,12 @@ class LearningForeground:
 
         plt.show()
 
-    def randomBitIndex(self, excludeBitsTried = False):
-        randomBit = 0
-        if not excludeBitsTried:
-            randomBit = numpy.random.randint(0, 9)
-        else:
-            #Naive strategy. If there are no candidate bits left to choose from, repopulate them all
-            if (len(self.candidateBits) == 0):
-                self.candidateBits = list(range(9))
-                for bit in self.bitsPredicted:
-                    self.candidateBits.remove(bit)
-            randomBit = numpy.random.choice(self.candidateBits)
-
-        self.candidateBits.remove(randomBit)
-        self.bitsPredicted.append(randomBit)
-
-        return randomBit
-        #exclusions is an array of indexes to not choose from
-
-    def createRandomGVF(self):
-        randBit = randint(0, 9) #TODO - make this actually random again.
-        #randBit = randint(0, 3)  # TODO - make this actually random again.
-        if randBit == 1:
-            print("!!!!!!!!!!! Got it !!!!!!!!!!!!!!!")
-            input("Replaced with proper GVF. ENTER to continue ...")
-        print("Creating GVF with bit: " + str(randBit))
-        gvf = GVF(self.featureRepresentationLength,
-                  alpha / numberOfActiveFeatures, isOffPolicy=True, name="Echo to bit " + str(randBit))
-        gvf.gamma = makeEchoBitGammaFunction(randBit)
-        gvf.policy = moveForwardPolicy
-        gvf.cumulant = makeSeeBitCumulantFunction(randBit)
-        return gvf
-
-    def initializeRandomGVFS(self):
-        #Pick a bit in the observation to see it's echo value. ie. approximate how long until you see it.
-
-        gvfs = []
-        for i in range(2):
-
-            randBit = randint(0, 9) #TODO - make this actually random again.
-            #randBit = randint(0, 3)  # TODO - make this actually random again.
-
-            if randBit == 1:
-                input("Created GVF for input[1] in first shot. ENTER to continue ...")
-                print("!!!!!!!!!!!!!!! Got it !!!!!!!!!!!!!!!")
-
-
-            #randBit = i
-            #randBit = i + 5
-
-            gvf =  GVF(self.featureRepresentationLength,
-                        alpha / numberOfActiveFeatures, isOffPolicy=True, name="Echo to bit " + str(randBit))
-            gvf.gamma = makeEchoBitGammaFunction(randBit)
-            gvf.policy = moveForwardPolicy
-            gvf.cumulant = makeSeeBitCumulantFunction(randBit)
-            print("New gvf: " + str(gvf.name))
-            gvfs.append(gvf)
-        return gvfs
-
-    def kullDemon(self):
-        #Determine weakest GVF and replace it with a random one.
-        indexOffset = 31
-        gvfOneScore = 0
-        #Look at the appropriate indexes in self.doubleQ to sum up the abs score
-        gvfOneIndexes = []
-        i = list(range(9,20))
-        gvfOneIndexes.extend(i)
-        i = list(range(9 + indexOffset * 1, 20 + indexOffset * 1))
-        gvfOneIndexes.extend(i)
-        i = list(range(9 + indexOffset * 2, 20 + indexOffset * 2))
-        gvfOneIndexes.extend(i)
-        i = list(range(9 + indexOffset * 3, 20 + indexOffset * 3))
-        gvfOneIndexes.extend(i)
-        for index in gvfOneIndexes:
-            gvfOneScore += fabs((self.doubleQ.theta1[index] + self.doubleQ.theta2[index]) / 2.0)
-
-        gvfTwoIndexes = []
-        i = list(range(21, 31))
-        gvfTwoIndexes.extend(i)
-        i = list(range(21 + indexOffset * 1, 31 + indexOffset * 1))
-        gvfTwoIndexes.extend(i)
-        i = list(range(21 + indexOffset * 2, 31 + indexOffset * 2))
-        gvfTwoIndexes.extend(i)
-        i = list(range(21 + indexOffset * 3, 31 + indexOffset * 3))
-        gvfTwoIndexes.extend(i)
-
-        gvfTwoScore = 0
-        for index in gvfTwoIndexes:
-            gvfTwoScore += fabs((self.doubleQ.theta1[index] + self.doubleQ.theta2[index]) / 2.0)
-        gvfNew = self.createRandomGVF()
-
-        print("New GVF: " + str(gvfNew.name))
-
-        if gvfOneScore > gvfTwoScore:
-            #Recycle gvfTwoScore
-            print("Kulled " + str(self.demons[1].name))
-            if (self.demons[1].name == "Echo to bit 1"):
-                input("Kulling wrong one. Enter to continue ...")
-            self.demons[1] = gvfNew
-
-        else:
-            #recycle gvf 1
-            print("Kulled " + str(self.demons[0].name))
-            if (self.demons[0].name == "Echo to bit 1"):
-                input("Kulling wrong one. Enter to continue ...")
-            self.demons[0] = gvfNew
-
-
     def updateDemons(self, oldState, action, newState):
 
         if self.previousState:
             #Learning
 
-            for demon in self.demons:
+            for demon in self.activeGVFs:
                 predBefore = demon.prediction(self.previousState)
                 demon.learn(oldState, action, newState)
                 #print("Demon " + demon.name + " prediction before: " + str(predBefore))
