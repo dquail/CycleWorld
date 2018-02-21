@@ -255,7 +255,7 @@ class LearningForeground:
         if len(self.candidateGVFs) == 0:
             return None
         else:
-            return self.candidateGVFs[randint(0, len(self.candidateGVFs) - 1)]
+            return self.candidateGVFs[randint(0, len(self.candidateGVFs))]
 
     def kullDemon(self):
         #Determine weakest GVF and replace it with a random one.
