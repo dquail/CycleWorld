@@ -64,6 +64,20 @@ class TriggerWorld:
         else:
             #return self.createObservationWithBiasAndRandom(oldState, newState)
             return  self.createObservationWithoutBiasAndRandom(newState)
+            #return self.createFullyObservableObservation(newState)
+
+
+    def createFullyObservableObservation(self, newState):
+        #Currently doesn't use any info from the state transitioned from
+
+        vector = numpy.zeros(5)
+        vector[self.currentIndex] = 1
+
+        #randomVector = numpy.random.randint(2, size = 4)
+        randomVector = numpy.zeros(4)
+
+        observation = numpy.append(vector, randomVector)
+        return observation
 
     def createObservationWithoutBiasAndRandom(self, newState):
         #Currently doesn't use any info from the state transitioned from
@@ -137,6 +151,15 @@ class TriggerWorld:
 
         #Determine reward. 1 unless you are in the special state and choose left
 
+        #For statistics - determine if it is the "correct" move.
+        correctActionValue = 0.0
+        if TERMINAL_STATE_INDEX == self.currentIndex:
+            if action == "T":
+                correctActionValue = 1.0
+        else:
+            if action == "M":
+                correctActionValue = 1.0
+
         reward = -1
         """
         print("")
@@ -166,6 +189,6 @@ class TriggerWorld:
 
         observation = self.createObservation(nextState)
 
-        return (reward, observation)
+        return (reward, observation, correctActionValue)
 
 
