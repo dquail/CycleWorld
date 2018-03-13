@@ -97,10 +97,10 @@ We artificially set the GVF layer to predict the green bit. We also eliminated k
 
 ![alt text](docs/300KEpisodes100RunsNoKullProperGVF.png "Proper GVF")
 
-### Predicting green bit
+### Dynamic Horde
 We artificially set the GVF layer to predict the green bit. We also eliminated kulling. As you would imagine, the agent is quickly able to learn a meaningful representation and make the correct decision ~ 100% of the time.
 
-![alt text](docs/300KEpisodes100RunsNoKullProperGVF.png.png "Proper GVF")
+![alt text](docs/300KEpisodes100Runs2500Kull.png "Kulling GVF")
 
 
 
