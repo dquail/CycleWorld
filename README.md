@@ -15,10 +15,20 @@ These predictive features are, in many ways, similar to historical features. Ins
 Historical, and predictive features are good for generalizing states. ie. Regardless of all other factors (where the player and her teammates are on the court, and the color of her shoes), it may be significant to know what is the probability she scores if she shoots?
 Another strength of these types of features is demonstrated in environments where information is lacking in current observations. To best describe this, consider an example.
 
-Imagine a human agent standing in the middle of a football field during a severe snow storm. Every direction the agent looks, appears to be the same - all they see is "white." If the agent were to only represent it's current state by considering these immediate observations, it would be lost, with no hope for navigating to the goal post. However, consider the agent constructing it's state differently. Imagine if the agent were to create features such as:
+Imagine a human agent standing in the middle of a football field. Their task is to attempt to find the red helmet on the sidelines. They can see, and hear, as you would imagine with any human agent. 
+
+![alt text](docs/WalkObservable.jpg "Observable field")
+
+Finding the helmet using just these senses seems easy. 
+
+Now imagine you're on the same field, looking for the same helmet, but there's a severe helmet. Every direction the agent looks, appears to be the same - all they see is "white." 
+
+![alt text](docs/WalkNonObservable.jpg "Non Observable field")
+
+If the agent were to only represent it's current state by considering these immediate observations, it would be lost, with no hope for navigating to the goal post. However, consider the agent constructing it's state differently. Imagine if the agent were to create features such as:
 - If I were to walk straight, would I eventually end up in the oppositions endzone?
-- If I were to turn left and then walk straight, would I eventually get indoors?
-- If I were to walk straight, how many steps would it take to hit a wall?
+- If I were to turn left and then walk straight, would I eventually see a white yard line under me?
+- If I were to walk straight, how many steps would it take to hit a goal post?
 
 If the agent constructs, and estimates the right set of predictions, it's able identify where it is in the field, despite "only seeing white"?
 
@@ -27,13 +37,15 @@ It is such a setting that we look to create an agent architecture that is able t
 ## Environment
 Our environment is a slight adaptation to the Cycle world. The MDP is illustrated below.
 
-![alt text](Documentation/WriteUp/Images/SegmentExample2.png "Segment 2 example")
+![alt text](docs/CycleWorld.png "CycleWorld")
 
 There are 6 states oriented in a circle. Each state leads to the next in a clockwise fashion. The difference is that we introduce a second action we call "trigger." In all but one of the states, "trigger" transitions the state back to itself. In the one special state, tacking the "trigger" action takes the agent to a terminal state. The reward for each episode is -1. It is easy to see, that for such an environment, the optimal policy is one which moves forward at each state - except the "special state" - whose optimal action is to pull the trigger. The difficulty of learning this policy is state aliasing. Each "white" state looks exactly the same. Which action should be taken? With such aliasing, the agent will either always move, or always pull the trigger, when it is in a white state. Clearly, neither option results in an optimal policy.
 
 To the agent the observation is seen as a bit stream as seen below.
 
-![alt text](Documentation/WriteUp/Images/SegmentExample2.png "Segment 2 example")
+![alt text](docs/Observation.png "Observation")
+
+The first 5 bits represent which color is seen. The 6th bit is a bias bit (always 1). And the last 5 bits are noise - randomly 0 or 1.
 
 ## Predictive state representation to the rescue ...
 In such an environment, how could the agent differentiate one white state from another? Keeping a history of the observed colors and actions would be one option. However, an alternative forward approach is what we consider. For each state, imagine if we were able to predict "how many steps would we need to take forward before we observed green?" If, for each state, we were able to make this prediction accurately, each state would be uniquely identified. Coming up with these predictions dynamically is the next challenge. 
@@ -41,7 +53,7 @@ In such an environment, how could the agent differentiate one white state from a
 ## A dynamic "horde" of demons.
 In such an architecture, we include predictions as part of the state representation. 
 
-![alt text](Documentation/WriteUp/Images/SegmentExample2.png "Segment 2 example")
+![alt text](docs/Architecture.png "Architecture")
 
 The value of the predictions are tile coded before being placed into the overall feature representation.
 
