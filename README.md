@@ -45,7 +45,14 @@ In such an architecture, we include predictions as part of the state representat
 
 The value of the predictions are tile coded before being placed into the overall feature representation.
 
-These predictions will take the form of General Value Functions (GVFs). 
+These predictions will take the form of General Value Functions (GVFs). More information describing GVFs is available in [Adam White's thesis defense.](https://era.library.ualberta.ca/files/bg257h75k/White_Adam_M_201506_PhD.pdf) 
+
+A GVF specifies a precise question about the agent's interaction with the world and the prediction is the agent's learned answer to that question. The GVF predicts aspects of future observations, dependent on a certain behavior. For example, A GVF may predict - "how many steps will I talk before I bump into the wall?" Or "How much red will I see in the future before I bump into the wall?"
+
+The types of questions can vary in nature. This is done by changing the gamma, cumulant, and behavior policy functions. Collectively, these are the GVFs question functions.
+
+![alt text](docs/GVF.png "GVF")
+
 With our knowledge of this environment, we could design such a GVF layer to specifically predict the green bit. But we want to design such a system that is dynamically able to generate the predictions that contribute information to the state representation. 
 
 To do so, we introduce a generate and test design to our architecture. 
@@ -65,9 +72,10 @@ Update state action values
 This algorithm involves the following:
 
 #### Generate
-After a certain number of time steps, our algorithm will "pause" to inspect the utility of each gvf, and replace the one(s) that don't contribute information, with another candidate. Our algorithm thus needs to be able to generate, and test General value functions
+After a certain number of time steps, our algorithm will "pause" to inspect the utility of each GVF and replace the one(s) that don't contribute information, with another candidate. Our algorithm thus needs to be able to generate, and test General value functions
 
-A general value function is blah blah blah. So the ways in which GVFs vary is by changing their gamma and cumulant, as well as their behavior policy. 
+As stated above, a GVF specifies a precise question about the agents interaction with the world.  The GVFs prediction is the learned approximation to that question. 
+
 For our generation of GVFS we consider GVFs that measure when they will observe a certain bit in the future. These take two types, each of whom have policies to always go forward: 
 1. Predicting whether you will see green in 1, 2, 3, or 4 steps. (counting GVFs)
 - Gamma is 0.0 when the green bit is observed. 1.0 otherwise. 
