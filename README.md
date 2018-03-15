@@ -37,7 +37,7 @@ It is such a setting that we look to create an agent architecture that is able t
 ## Environment
 Our environment is a slight adaptation to the Cycle world. The MDP is illustrated below.
 
-![alt text](docs/CycleWorld.png "CycleWorld")
+![alt text](docs/MDP.png "CycleWorld")
 
 There are 6 states oriented in a circle. Each state leads to the next in a clockwise fashion. The difference is that we introduce a second action we call "trigger." In all but one of the states, "trigger" transitions the state back to itself. In the one special state, tacking the "trigger" action takes the agent to a terminal state. The reward for each episode is -1. It is easy to see, that for such an environment, the optimal policy is one which moves forward at each state - except the "special state" - whose optimal action is to pull the trigger. The difficulty of learning this policy is state aliasing. Each "white" state looks exactly the same. Which action should be taken? With such aliasing, the agent will either always move, or always pull the trigger, when it is in a white state. Clearly, neither option results in an optimal policy.
 
