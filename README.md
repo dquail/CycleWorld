@@ -53,7 +53,7 @@ In such an environment, how could the agent differentiate one white state from a
 ## A dynamic "horde" of demons.
 In such an architecture, we include predictions as part of the state representation. 
 
-![alt text](docs/Architecture.png "Architecture")
+![alt text](docs/ArchitectureExpanded.png "Architecture")
 
 The value of the predictions are tile coded before being placed into the overall feature representation.
 
