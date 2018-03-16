@@ -89,6 +89,9 @@ After a certain number of time steps, our algorithm will "pause" to inspect the 
 As stated above, a GVF specifies a precise question about the agents interaction with the world.  The GVFs prediction is the learned approximation to that question. 
 
 For our generation of GVFS we consider GVFs that measure when they will observe a certain bit in the future. These take two types, each of whom have policies to always go forward: 
+
+![alt text](docs/GVFGenerator.png "Generate")
+
 1. Predicting whether you will see green in 1, 2, 3, or 4 steps. (counting GVFs)
 - Gamma is 0.0 when the green bit is observed. 1.0 otherwise. 
 - Cumulant is 1.0 when the green bit is observed. 0.0 otherwise.
