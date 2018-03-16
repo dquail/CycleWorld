@@ -43,7 +43,7 @@ There are 6 states oriented in a circle. Each state leads to the next in a clock
 
 To the agent the observation is seen as a bit stream as seen below.
 
-![alt text](docs/Observation.png "Observation")
+![alt text](docs/ObsVector.png "Observation")
 
 The first 5 bits represent which color is seen. The 6th bit is a bias bit (always 1). And the last 5 bits are noise - randomly 0 or 1.
 
