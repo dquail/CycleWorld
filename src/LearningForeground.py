@@ -443,12 +443,12 @@ class LearningForeground:
                         """
                         #print("Run: " + str(run) + ", Episode:  " + str(episode) + ", Steps: " + str(step) + str(gotitStr) + str(didExploreStr))
 
-                        if episode > 0:
+                        if episode > 0 and not didExploreThisEpisode:
                             episodeLengthArray[episode] = episodeLengthArray[episode] + (1.0 / (run + 1.0)) * (
                                     step - episodeLengthArray[episode])
             #input("Finished run. Press ENTER to continue ...")
-        #self.plotAverageEpisodeLengths(episodeLengthArray, numberOfRuns)
-        self.plotAverageCorrectDecisions(numberOfRuns)
+        self.plotAverageEpisodeLengths(episodeLengthArray, numberOfRuns)
+        #self.plotAverageCorrectDecisions(numberOfRuns)
 
     def plotAverageCorrectDecisions(self, numberOfRuns):
         newArray = []
@@ -474,6 +474,9 @@ class LearningForeground:
         fig = plt.figure(1)
         fig.suptitle('Average Episode Length', fontsize=14, fontweight='bold')
         ax = fig.add_subplot(211)
+        #axes = plt.gca()
+
+        ax.set_ylim([3, 15])
         titleLabel = "Average over " + str(numberOfRuns) + " runs"
         ax.set_title(titleLabel)
         ax.set_xlabel('Episode')
@@ -502,5 +505,7 @@ def start():
     #foreground.start(numberOfEpisodes = 300000, numberOfRuns =100, doKullRate = 25000)
     #No kulling. No proper GVFS (no learning)
     foreground.start(numberOfEpisodes=300000, numberOfRuns=100, doKullRate=0)
+    #foreground.start(numberOfEpisodes=100000, numberOfRuns=1, doKullRate=0)
+    #foreground.start(numberOfEpisodes=30000, numberOfRuns=1, doKullRate=0)
 
 start()
