@@ -264,9 +264,9 @@ class LearningForeground:
             if self.doKullRate > 0:
                 gvf = self.getRandomGVFFromCandidates()
             else:
-                gvf = self.candidateGVFs[i+1]
+                #gvf = self.candidateGVFs[i+1]
                 #Below - never get green
-                #gvf = self.candidateGVFs[i + 4]
+                gvf = self.candidateGVFs[i + 4]
 
             if gvf.name == "Echo to bit 1":
                 self.gotBit1 = True
@@ -450,7 +450,7 @@ class LearningForeground:
                                 lastValidStepCount = step
 
                             episodeLengthArray[episode] = episodeLengthArray[episode] + (1.0 / (run + 1.0)) * (
-                                    lastValidStepCount - episodeLengthArray[episode])
+                                    lastValidStepCount +1 - episodeLengthArray[episode])
             #input("Finished run. Press ENTER to continue ...")
         print("*** Finished runs. About to plot")
         self.plotAverageEpisodeLengths(episodeLengthArray, numberOfRuns)
@@ -488,8 +488,8 @@ class LearningForeground:
         ax = fig.add_subplot(211)
         #axes = plt.gca()
 
-        #ax.set_ylim([0, 25])
-        ax.set_ylim([0, 10])
+        ax.set_ylim([0, 26])
+        #ax.set_ylim([0, 10])
         titleLabel = "Average over " + str(numberOfRuns) + " runs"
         ax.set_title(titleLabel)
         ax.set_xlabel('Episode')
@@ -519,7 +519,8 @@ def start():
     #No kulling. No proper GVFS (no learning)
 
     #foreground.start(numberOfEpisodes=300000, numberOfRuns=100, doKullRate=0)
-    foreground.start(numberOfEpisodes=300000, numberOfRuns=10, doKullRate=0)
+    #foreground.start(numberOfEpisodes=300000, numberOfRuns=10, doKullRate=0)
+    foreground.start(numberOfEpisodes=200, numberOfRuns=1000, doKullRate=0)
 
 
 start()

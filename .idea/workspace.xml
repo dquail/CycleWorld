@@ -2,9 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="19310aa0-6517-4268-96f2-d7ed4f452a9f" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/docs/MDP.png" afterPath="$PROJECT_DIR$/docs/MDP.png" />
-      <change beforePath="$PROJECT_DIR$/docs/Presentation/Presentation.key" afterPath="$PROJECT_DIR$/docs/Presentation/Presentation.key" />
       <change beforePath="$PROJECT_DIR$/src/LearningForeground.py" afterPath="$PROJECT_DIR$/src/LearningForeground.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -53,8 +50,8 @@
       <file leaf-file-name="LearningForeground.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/LearningForeground.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="160">
-              <caret line="452" column="55" lean-forward="false" selection-start-line="452" selection-start-column="55" selection-end-line="452" selection-end-column="55" />
+            <state relative-caret-position="287">
+              <caret line="522" column="60" lean-forward="false" selection-start-line="522" selection-start-column="60" selection-end-line="522" selection-end-column="60" />
               <folding>
                 <element signature="e#203#220#0" expanded="true" />
               </folding>
@@ -315,7 +312,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/LearningForeground.py</url>
-          <line>524</line>
+          <line>525</line>
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/LearningForeground.py</url>
@@ -791,8 +788,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/LearningForeground.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="160">
-          <caret line="452" column="55" lean-forward="false" selection-start-line="452" selection-start-column="55" selection-end-line="452" selection-end-column="55" />
+        <state relative-caret-position="287">
+          <caret line="522" column="60" lean-forward="false" selection-start-line="522" selection-start-column="60" selection-end-line="522" selection-end-column="60" />
           <folding>
             <element signature="e#203#220#0" expanded="true" />
           </folding>
