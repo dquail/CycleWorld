@@ -265,6 +265,7 @@ class LearningForeground:
                 gvf = self.getRandomGVFFromCandidates()
             else:
                 gvf = self.candidateGVFs[i+1]
+                #Below - never get green
                 #gvf = self.candidateGVFs[i + 4]
 
             if gvf.name == "Echo to bit 1":
@@ -316,7 +317,7 @@ class LearningForeground:
         episodeLengthArray = numpy.zeros(numberOfEpisodes)
         for run in range(numberOfRuns):
             print("RUN NUMER " + str(run + 1) + " .............")
-
+            lastValidStepCount = 25
             self.resetEnvironment()
 
             for episode in range(1, numberOfEpisodes):
@@ -443,12 +444,19 @@ class LearningForeground:
                         """
                         #print("Run: " + str(run) + ", Episode:  " + str(episode) + ", Steps: " + str(step) + str(gotitStr) + str(didExploreStr))
 
-                        if episode > 0 and not didExploreThisEpisode:
+                        #if episode > 0 and not didExploreThisEpisode:
+                        if episode > 0:
+                            if not didExploreThisEpisode:
+                                lastValidStepCount = step
+
                             episodeLengthArray[episode] = episodeLengthArray[episode] + (1.0 / (run + 1.0)) * (
-                                    step - episodeLengthArray[episode])
+                                    lastValidStepCount - episodeLengthArray[episode])
             #input("Finished run. Press ENTER to continue ...")
+        print("*** Finished runs. About to plot")
         self.plotAverageEpisodeLengths(episodeLengthArray, numberOfRuns)
+
         #self.plotAverageCorrectDecisions(numberOfRuns)
+        input("All done. ENTER to continue")
 
     def plotAverageCorrectDecisions(self, numberOfRuns):
         newArray = []
@@ -470,19 +478,24 @@ class LearningForeground:
         plt.show()
 
     def plotAverageEpisodeLengths(self, plotLengthsArray, numberOfRuns):
+        newArray = []
+        for l in plotLengthsArray:
+            if l > 0.0:
+                newArray.append(l)
 
         fig = plt.figure(1)
         fig.suptitle('Average Episode Length', fontsize=14, fontweight='bold')
         ax = fig.add_subplot(211)
         #axes = plt.gca()
 
-        ax.set_ylim([3, 15])
+        #ax.set_ylim([0, 25])
+        ax.set_ylim([0, 10])
         titleLabel = "Average over " + str(numberOfRuns) + " runs"
         ax.set_title(titleLabel)
         ax.set_xlabel('Episode')
         ax.set_ylabel('Average episode length')
 
-        ax.plot(plotLengthsArray)
+        ax.plot(newArray)
 
         plt.show()
 
@@ -504,8 +517,12 @@ def start():
     foreground = LearningForeground()
     #foreground.start(numberOfEpisodes = 300000, numberOfRuns =100, doKullRate = 25000)
     #No kulling. No proper GVFS (no learning)
-    foreground.start(numberOfEpisodes=300000, numberOfRuns=100, doKullRate=0)
-    #foreground.start(numberOfEpisodes=100000, numberOfRuns=1, doKullRate=0)
-    #foreground.start(numberOfEpisodes=30000, numberOfRuns=1, doKullRate=0)
+
+    #foreground.start(numberOfEpisodes=300000, numberOfRuns=100, doKullRate=0)
+    foreground.start(numberOfEpisodes=300000, numberOfRuns=10, doKullRate=0)
+
 
 start()
+
+#lastEpisodeLengthNoExplore = 20
+#if noExplore
